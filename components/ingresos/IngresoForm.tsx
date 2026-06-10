@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { createIngreso, IngresoState } from "@/app/ingresos/actions";
+import { createIngreso, IngresoState } from "@/app/(protected)/ingresos/actions";
 import ClienteAutocomplete from "./ClienteAutocomplete";
 import DescargaComprobanteButton from "@/components/pdf/DescargaComprobanteButton";
 import { Tables } from "@/lib/database.types";
@@ -16,10 +16,10 @@ type Props = {
   today: string;
 };
 
-const ESTACIONES = ["HANDY", "BASE", "MÓVIL", "OTRO"];
+const ESTACIONES = ["HANDY", "BASE", "MÃ“VIL", "OTRO"];
 
 const ACCESORIOS: { name: string; label: string }[] = [
-  { name: "microfono", label: "Micrófono" },
+  { name: "microfono", label: "MicrÃ³fono" },
   { name: "fuente",    label: "Fuente" },
   { name: "cable",     label: "Cable" },
   { name: "pack",      label: "Pack" },
@@ -52,14 +52,14 @@ const textareaCls = `${inputCls} resize-none`;
 export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }: Props) {
   const [state, action, isPending] = useActionState<IngresoState, FormData>(createIngreso, null);
 
-  // ── Pantalla de éxito ────────────────────────────────────────
+  // â”€â”€ Pantalla de Ã©xito â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (state && "success" in state) {
     return (
       <div className="max-w-xl bg-white rounded-xl border border-green-200 p-8 text-center space-y-5">
-        <div className="text-4xl text-green-500">✓</div>
+        <div className="text-4xl text-green-500">âœ“</div>
         <div>
           <p className="text-lg font-semibold text-gray-900">Orden registrada</p>
-          <p className="text-5xl font-bold text-indigo-600 mt-1">N° {state.numero}</p>
+          <p className="text-5xl font-bold text-indigo-600 mt-1">NÂ° {state.numero}</p>
         </div>
         <div className="flex flex-col items-center gap-3 pt-1">
           <DescargaComprobanteButton ordenId={state.orden_id} numero={state.numero} />
@@ -74,7 +74,7 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
               href="/ordenes"
               className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
-              Ver órdenes
+              Ver Ã³rdenes
             </Link>
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
     );
   }
 
-  // ── Formulario ───────────────────────────────────────────────
+  // â”€â”€ Formulario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <form action={action} className="space-y-4 max-w-3xl">
       {state && "error" in state && (
@@ -91,15 +91,15 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
         </div>
       )}
 
-      {/* ── Cliente ── */}
+      {/* â”€â”€ Cliente â”€â”€ */}
       <Section title="Cliente">
         <div>
-          <Label htmlFor="cliente-input" required>Razón social</Label>
+          <Label htmlFor="cliente-input" required>RazÃ³n social</Label>
           <ClienteAutocomplete clientes={clientes} />
         </div>
       </Section>
 
-      {/* ── Equipo ── */}
+      {/* â”€â”€ Equipo â”€â”€ */}
       <Section title="Equipo">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
@@ -111,15 +111,15 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
             <input id="modelo" name="modelo" className={inputCls} />
           </div>
           <div>
-            <Label htmlFor="numero_serie">N° de serie</Label>
+            <Label htmlFor="numero_serie">NÂ° de serie</Label>
             <input id="numero_serie" name="numero_serie" className={inputCls} />
           </div>
         </div>
 
         <div className="sm:w-48">
-          <Label htmlFor="estacion">Estación</Label>
+          <Label htmlFor="estacion">EstaciÃ³n</Label>
           <select id="estacion" name="estacion" defaultValue="" className={inputCls}>
-            <option value="">— Seleccionar —</option>
+            <option value="">â€” Seleccionar â€”</option>
             {ESTACIONES.map((e) => (
               <option key={e} value={e}>{e}</option>
             ))}
@@ -127,7 +127,7 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
         </div>
       </Section>
 
-      {/* ── Accesorios ── */}
+      {/* â”€â”€ Accesorios â”€â”€ */}
       <Section title="Accesorios entregados">
         <div className="flex flex-wrap gap-x-6 gap-y-3">
           {ACCESORIOS.map(({ name, label }) => (
@@ -143,7 +143,7 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
         </div>
       </Section>
 
-      {/* ── Problema reportado ── */}
+      {/* â”€â”€ Problema reportado â”€â”€ */}
       <Section title="Problema reportado">
         <div>
           <Label htmlFor="deficiencia">Deficiencia</Label>
@@ -151,13 +151,13 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
             id="deficiencia"
             name="deficiencia"
             rows={3}
-            placeholder="Describí el problema que reporta el cliente..."
+            placeholder="DescribÃ­ el problema que reporta el cliente..."
             className={textareaCls}
           />
         </div>
       </Section>
 
-      {/* ── Observaciones ── */}
+      {/* â”€â”€ Observaciones â”€â”€ */}
       <Section title="Observaciones">
         <textarea
           id="observaciones"
@@ -168,15 +168,15 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
         />
       </Section>
 
-      {/* ── Recepción ── */}
-      <Section title="Recepción">
+      {/* â”€â”€ RecepciÃ³n â”€â”€ */}
+      <Section title="RecepciÃ³n">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="entrego">Entregó</Label>
+            <Label htmlFor="entrego">EntregÃ³</Label>
             <input id="entrego" name="entrego" placeholder="Nombre de quien trajo el equipo" className={inputCls} />
           </div>
           <div>
-            <Label htmlFor="quien_recibio">Recibió</Label>
+            <Label htmlFor="quien_recibio">RecibiÃ³</Label>
             <input
               id="quien_recibio"
               name="quien_recibio"
@@ -188,9 +188,9 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="tecnico">Técnico asignado</Label>
+            <Label htmlFor="tecnico">TÃ©cnico asignado</Label>
             <select id="tecnico" name="tecnico" defaultValue="" className={inputCls}>
-              <option value="">— Sin asignar —</option>
+              <option value="">â€” Sin asignar â€”</option>
               {tecnicos.map((t) => (
                 <option key={t.id} value={t.nombre}>{t.nombre}</option>
               ))}
@@ -210,7 +210,7 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today }
         </div>
       </Section>
 
-      {/* ── Submit ── */}
+      {/* â”€â”€ Submit â”€â”€ */}
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -6,7 +6,7 @@ import {
   createTecnico,
   updateTecnico,
   toggleTecnico,
-} from "@/app/configuracion/actions";
+} from "@/app/(protected)/configuracion/actions";
 import { Tables } from "@/lib/database.types";
 
 type Tecnico = Tables<"tecnicos">;
@@ -19,11 +19,11 @@ export default function TecnicosPanel({ tecnicos }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // Nuevo técnico
+  // Nuevo tÃ©cnico
   const [newName, setNewName] = useState("");
   const [addError, setAddError] = useState<string | null>(null);
 
-  // Edición inline
+  // EdiciÃ³n inline
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
@@ -82,18 +82,18 @@ export default function TecnicosPanel({ tecnicos }: Props) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-5">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-        Técnicos
+        TÃ©cnicos
       </h2>
 
       {/* Lista */}
       {tecnicos.length === 0 ? (
-        <p className="text-sm text-gray-400">No hay técnicos cargados todavía.</p>
+        <p className="text-sm text-gray-400">No hay tÃ©cnicos cargados todavÃ­a.</p>
       ) : (
         <ul className="divide-y divide-gray-100">
           {tecnicos.map((t) => (
             <li key={t.id} className={`py-3 flex items-center gap-3 ${isPending ? "opacity-60" : ""}`}>
               {editingId === t.id ? (
-                // Modo edición
+                // Modo ediciÃ³n
                 <div className="flex-1 flex items-center gap-2">
                   <input
                     type="text"
@@ -161,17 +161,17 @@ export default function TecnicosPanel({ tecnicos }: Props) {
         </ul>
       )}
 
-      {/* Agregar técnico */}
+      {/* Agregar tÃ©cnico */}
       <div className="pt-2 border-t border-gray-100">
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Agregar técnico
+          Agregar tÃ©cnico
         </p>
         <form onSubmit={handleAdd} className="flex gap-2">
           <input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Nombre del técnico"
+            placeholder="Nombre del tÃ©cnico"
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <button

@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
 import { createClient } from "@/lib/supabase/server";
-import { getAlertasResumen } from "@/app/alertas/actions";
+import { getAlertasResumen } from "@/app/(protected)/alertas/actions";
 import { NAV_ITEMS } from "@/lib/types";
 import "./globals.css";
 
@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "SPECTRA",
-  description: "Sistema de gestión comercial SPECTRA",
+  description: "Sistema de gestiÃ³n comercial SPECTRA",
 };
 
 export default async function RootLayout({

@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Tables } from "@/lib/database.types";
-import { deleteCliente } from "@/app/clientes/actions";
+import { deleteCliente } from "@/app/(protected)/clientes/actions";
 
 type Props = {
   clientes: Tables<"clientes">[];
@@ -24,7 +24,7 @@ export default function ClientesTable({ clientes }: Props) {
   });
 
   function handleDelete(id: string, razonSocial: string) {
-    if (!confirm(`¿Eliminar "${razonSocial}"?\nEsta acción no se puede deshacer.`)) return;
+    if (!confirm(`Â¿Eliminar "${razonSocial}"?\nEsta acciÃ³n no se puede deshacer.`)) return;
     startTransition(async () => {
       await deleteCliente(id);
       router.refresh();
@@ -35,7 +35,7 @@ export default function ClientesTable({ clientes }: Props) {
     <div className="space-y-4">
       <input
         type="text"
-        placeholder="Buscar por razón social o contacto..."
+        placeholder="Buscar por razÃ³n social o contacto..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -43,7 +43,7 @@ export default function ClientesTable({ clientes }: Props) {
 
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm">
-          {search ? "No se encontraron resultados para tu búsqueda." : "No hay clientes cargados todavía."}
+          {search ? "No se encontraron resultados para tu bÃºsqueda." : "No hay clientes cargados todavÃ­a."}
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -51,13 +51,13 @@ export default function ClientesTable({ clientes }: Props) {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Razón social
+                  RazÃ³n social
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Localidad
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Teléfono
+                  TelÃ©fono
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Contacto
@@ -72,9 +72,9 @@ export default function ClientesTable({ clientes }: Props) {
                   className={`hover:bg-gray-50 transition-colors ${isPending ? "opacity-60" : ""}`}
                 >
                   <td className="px-4 py-3 font-medium text-gray-900">{c.razon_social}</td>
-                  <td className="px-4 py-3 text-gray-500">{c.localidad ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{c.telefono1 ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-500">{c.contacto ?? "—"}</td>
+                  <td className="px-4 py-3 text-gray-500">{c.localidad ?? "â€”"}</td>
+                  <td className="px-4 py-3 text-gray-500">{c.telefono1 ?? "â€”"}</td>
+                  <td className="px-4 py-3 text-gray-500">{c.contacto ?? "â€”"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <Link

@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useActionState } from "react";
-import { upsertConfig } from "@/app/configuracion/actions";
+import { upsertConfig } from "@/app/(protected)/configuracion/actions";
 import { Tables } from "@/lib/database.types";
 
 type Props = {
@@ -58,7 +58,7 @@ export default function EmpresaForm({ config, empresaId }: Props) {
 
       {state && "success" in state && (
         <div className="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-md">
-          Configuración guardada correctamente.
+          ConfiguraciÃ³n guardada correctamente.
         </div>
       )}
       {state && "error" in state && (
@@ -84,15 +84,15 @@ export default function EmpresaForm({ config, empresaId }: Props) {
         </div>
 
         <Field
-          label="Dirección"
+          label="DirecciÃ³n"
           name="direccion"
           defaultValue={config?.direccion}
-          placeholder="Calle, número, ciudad"
+          placeholder="Calle, nÃºmero, ciudad"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
-            label="Cotización dólar (ARS/USD)"
+            label="CotizaciÃ³n dÃ³lar (ARS/USD)"
             name="cotizacion_dolar"
             type="number"
             defaultValue={config?.cotizacion_dolar ?? ""}

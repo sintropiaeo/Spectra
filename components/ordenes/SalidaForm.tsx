@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { confirmarSalida } from "@/app/ordenes/actions";
+import { confirmarSalida } from "@/app/(protected)/ordenes/actions";
 
-// ── Tipos ─────────────────────────────────────────────────────
+// â”€â”€ Tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type ItemRow = {
   id: string;
   cantidad: string;
@@ -34,7 +34,7 @@ type Props = {
   cotizacionInicial: number | null;
 };
 
-// ── Helpers ───────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function newRow(): ItemRow {
   return { id: crypto.randomUUID(), cantidad: "1", detalle: "", precio: "", importe: 0 };
 }
@@ -43,7 +43,7 @@ const fmt2 = (n: number) => n.toFixed(2);
 const fmtARS = (n: number) =>
   n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// ── Componentes internos ──────────────────────────────────────
+// â”€â”€ Componentes internos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Checkbox({
   checked,
   onChange,
@@ -66,7 +66,7 @@ function Checkbox({
   );
 }
 
-// ── Componente principal ──────────────────────────────────────
+// â”€â”€ Componente principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function SalidaForm({
   ordenId,
   tecnicoInicial,
@@ -104,7 +104,7 @@ export default function SalidaForm({
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // ── Cálculos ─────────────────────────────────────────────────
+  // â”€â”€ CÃ¡lculos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function updateItem(id: string, field: "cantidad" | "detalle" | "precio", value: string) {
     setItems((prev) =>
       prev.map((item) => {
@@ -126,7 +126,7 @@ export default function SalidaForm({
       ? totalFinal * cotizacionNum
       : null;
 
-  // ── Confirmar ────────────────────────────────────────────────
+  // â”€â”€ Confirmar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function handleConfirmar() {
     const payload = items
       .filter((i) => i.detalle.trim())
@@ -138,7 +138,7 @@ export default function SalidaForm({
       }));
 
     if (payload.length === 0) {
-      setError("Agregá al menos un ítem de trabajo antes de confirmar.");
+      setError("AgregÃ¡ al menos un Ã­tem de trabajo antes de confirmar.");
       return;
     }
 
@@ -158,11 +158,11 @@ export default function SalidaForm({
     });
   }
 
-  // ── Éxito ────────────────────────────────────────────────────
+  // â”€â”€ Ã‰xito â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (success) {
     return (
       <div className="max-w-md bg-white rounded-xl border border-green-200 p-8 text-center space-y-4">
-        <div className="text-4xl text-green-500">✓</div>
+        <div className="text-4xl text-green-500">âœ“</div>
         <div>
           <p className="text-lg font-semibold text-gray-900">Equipo entregado</p>
           <p className="text-sm text-gray-500 mt-1">La orden fue marcada como entregada.</p>
@@ -172,7 +172,7 @@ export default function SalidaForm({
             href="/ordenes"
             className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
           >
-            Volver a órdenes
+            Volver a Ã³rdenes
           </Link>
           <Link
             href="/ingresos"
@@ -185,7 +185,7 @@ export default function SalidaForm({
     );
   }
 
-  // ── Formulario ───────────────────────────────────────────────
+  // â”€â”€ Formulario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="space-y-5">
       {error && (
@@ -194,7 +194,7 @@ export default function SalidaForm({
         </div>
       )}
 
-      {/* ── Tabla de trabajos ──────────────────────────────── */}
+      {/* â”€â”€ Tabla de trabajos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
           <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -237,7 +237,7 @@ export default function SalidaForm({
                     type="text"
                     value={item.detalle}
                     onChange={(e) => updateItem(item.id, "detalle", e.target.value)}
-                    placeholder="Descripción del trabajo o repuesto..."
+                    placeholder="DescripciÃ³n del trabajo o repuesto..."
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </td>
@@ -253,7 +253,7 @@ export default function SalidaForm({
                   />
                 </td>
                 <td className="px-3 py-1.5 text-right font-medium text-gray-900 tabular-nums">
-                  {item.importe > 0 ? `$ ${fmt2(item.importe)}` : "—"}
+                  {item.importe > 0 ? `$ ${fmt2(item.importe)}` : "â€”"}
                 </td>
                 <td className="px-1 py-1.5 text-center">
                   <button
@@ -266,7 +266,7 @@ export default function SalidaForm({
                     title="Quitar fila"
                     className="text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors text-lg leading-none"
                   >
-                    ×
+                    Ã—
                   </button>
                 </td>
               </tr>
@@ -310,7 +310,7 @@ export default function SalidaForm({
             {totalEnPesos !== null && (
               <tr className="bg-indigo-50 border-t border-indigo-100">
                 <td colSpan={3} className="px-4 py-2 text-right text-xs text-indigo-600">
-                  Equivalente ARS (× ${fmtARS(cotizacionNum)})
+                  Equivalente ARS (Ã— ${fmtARS(cotizacionNum)})
                 </td>
                 <td className="px-3 py-2 text-right text-sm font-bold text-indigo-700 tabular-nums">
                   $ {fmtARS(totalEnPesos)}
@@ -322,13 +322,13 @@ export default function SalidaForm({
         </table>
       </div>
 
-      {/* ── Opciones de facturación + técnico ──────────────── */}
+      {/* â”€â”€ Opciones de facturaciÃ³n + tÃ©cnico â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-        {/* Facturación */}
+        {/* FacturaciÃ³n */}
         <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
           <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Facturación
+            FacturaciÃ³n
           </h2>
 
           {/* Moneda */}
@@ -360,14 +360,14 @@ export default function SalidaForm({
             <Checkbox
               checked={mostrarCotizacion}
               onChange={setMostrarCotizacion}
-              label="Mostrar cotización"
+              label="Mostrar cotizaciÃ³n"
             />
           </div>
 
-          {/* Cotización editable (solo si USD + mostrar) */}
+          {/* CotizaciÃ³n editable (solo si USD + mostrar) */}
           {moneda === "USD" && mostrarCotizacion && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 whitespace-nowrap">Cotización ARS/USD</span>
+              <span className="text-sm text-gray-600 whitespace-nowrap">CotizaciÃ³n ARS/USD</span>
               <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
                 <span className="px-2 text-sm text-gray-400 bg-gray-50 border-r border-gray-300 select-none">
                   $
@@ -386,17 +386,17 @@ export default function SalidaForm({
           )}
         </div>
 
-        {/* Técnico */}
+        {/* TÃ©cnico */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-            Técnico
+            TÃ©cnico
           </h2>
           <select
             value={tecnico}
             onChange={(e) => setTecnico(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="">— Sin asignar —</option>
+            <option value="">â€” Sin asignar â€”</option>
             {tecnicos.map((t) => (
               <option key={t.id} value={t.nombre}>
                 {t.nombre}
@@ -406,7 +406,7 @@ export default function SalidaForm({
         </div>
       </div>
 
-      {/* ── Confirmar ──────────────────────────────────────── */}
+      {/* â”€â”€ Confirmar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div>
         <button
           type="button"

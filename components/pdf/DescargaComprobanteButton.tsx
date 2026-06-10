@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import { getOrdenForPDF } from "@/app/ordenes/actions";
+import { getOrdenForPDF } from "@/app/(protected)/ordenes/actions";
 
 type Props = {
   ordenId: string;
@@ -24,9 +24,9 @@ export default function DescargaComprobanteButton({
     setError(null);
     try {
       const data = await getOrdenForPDF(ordenId);
-      if (!data) throw new Error("No se encontró la orden.");
+      if (!data) throw new Error("No se encontrÃ³ la orden.");
 
-      // Importes dinámicos: solo se cargan en el cliente, nunca en SSR
+      // Importes dinÃ¡micos: solo se cargan en el cliente, nunca en SSR
       const [{ pdf }, { OrdenPDF }] = await Promise.all([
         import("@react-pdf/renderer"),
         import("@/components/pdf/OrdenPDF"),
@@ -35,13 +35,13 @@ export default function DescargaComprobanteButton({
       const blob = await pdf(<OrdenPDF data={data} />).toBlob();
       const url = URL.createObjectURL(blob);
 
-      // Abre en pestaña nueva → el usuario imprime o descarga desde el visor del navegador
+      // Abre en pestaÃ±a nueva â†’ el usuario imprime o descarga desde el visor del navegador
       const a = document.createElement("a");
       a.href = url;
       a.target = "_blank";
       a.rel = "noopener";
       a.click();
-      // Liberar memoria después de un momento
+      // Liberar memoria despuÃ©s de un momento
       setTimeout(() => URL.revokeObjectURL(url), 10_000);
     } catch (e) {
       setError((e as Error).message);
