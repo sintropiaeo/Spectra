@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -25,15 +25,20 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
-  const { pathname } = request.nextUrl;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { pathname } = request.nextUrl;
 
-  if (!user && pathname !== "/login") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+    if (!user && pathname !== "/login") {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
 
-  if (user && pathname === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (user && pathname === "/login") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  } catch {
+    // Si Supabase no responde, dejar pasar la request
+    return supabaseResponse;
   }
 
   return supabaseResponse;
