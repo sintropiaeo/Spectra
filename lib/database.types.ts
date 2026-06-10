@@ -325,7 +325,41 @@ export type Database = {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      crear_orden_con_accesorios: {
+        Args: {
+          p_empresa_id:    string
+          p_cliente_id:    string
+          p_marca:         string
+          p_modelo:        string
+          p_numero_serie:  string
+          p_estacion:      string
+          p_deficiencia:   string
+          p_observaciones: string
+          p_entrego:       string
+          p_quien_recibio: string
+          p_tecnico:       string
+          p_fecha_ingreso: string
+          p_microfono:     boolean
+          p_fuente:        boolean
+          p_cable:         boolean
+          p_pack:          boolean
+          p_antena:        boolean
+          p_cargador:      boolean
+          p_crem:          boolean
+        }
+        Returns: { orden_id: string; numero: number }
+      }
+      confirmar_salida_orden: {
+        Args: {
+          p_orden_id:     string
+          p_tecnico:      string
+          p_fecha_salida: string
+          p_items:        Json
+        }
+        Returns: undefined
+      }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }
