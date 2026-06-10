@@ -1,57 +1,24 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Si faltan las env vars, dejar pasar (evita crash en Edge)
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    if (pathname !== "/login") {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-    return NextResponse.next({ request });
+  // Verifica si existe alguna cookie de sesión de Supabase.
+  // La validación real del token ocurre en los Server Components via lib/supabase/server.ts.
+  // Este chequeo liviano evita importar @supabase/ssr en Edge (genera MIDDLEWARE_INVOCATION_FAILED).
+  const hasSession = request.cookies.getAll().some(
+    (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
+  );
+
+  if (!hasSession && pathname !== "/login") {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  try {
-    let supabaseResponse = NextResponse.next({ request });
-
-    const supabase = createServerClient(supabaseUrl, supabaseKey, {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
-    });
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user && pathname !== "/login") {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    if (user && pathname === "/login") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
-    return supabaseResponse;
-  } catch {
-    // Si Supabase falla, redirigir a login como fallback seguro
-    if (pathname !== "/login") {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-    return NextResponse.next({ request });
+  if (hasSession && pathname === "/login") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
