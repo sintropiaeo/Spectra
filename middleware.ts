@@ -2,12 +2,22 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const { pathname } = request.nextUrl;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  // Si faltan las env vars, dejar pasar (evita crash en Edge)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    if (pathname !== "/login") {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next({ request });
+  }
+
+  try {
+    let supabaseResponse = NextResponse.next({ request });
+
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -22,12 +32,9 @@ export async function middleware(request: NextRequest) {
           );
         },
       },
-    }
-  );
+    });
 
-  try {
     const { data: { user } } = await supabase.auth.getUser();
-    const { pathname } = request.nextUrl;
 
     if (!user && pathname !== "/login") {
       return NextResponse.redirect(new URL("/login", request.url));
@@ -36,12 +43,15 @@ export async function middleware(request: NextRequest) {
     if (user && pathname === "/login") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
-  } catch {
-    // Si Supabase no responde, dejar pasar la request
-    return supabaseResponse;
-  }
 
-  return supabaseResponse;
+    return supabaseResponse;
+  } catch {
+    // Si Supabase falla, redirigir a login como fallback seguro
+    if (pathname !== "/login") {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next({ request });
+  }
 }
 
 export const config = {
