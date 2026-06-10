@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   BarChart,
@@ -24,7 +24,7 @@ const CustomTooltip = ({
   return (
     <div className="bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm">
       <p className="font-medium text-gray-700">{label}</p>
-      <p className="text-indigo-600 font-semibold">{payload[0].value} Ã³rdenes</p>
+      <p className="text-indigo-600 font-semibold">{payload[0].value} órdenes</p>
     </div>
   );
 };

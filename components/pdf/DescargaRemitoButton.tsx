@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { getOrdenParaRemito } from "@/app/(protected)/ordenes/actions";
@@ -24,7 +24,7 @@ export default function DescargaRemitoButton({
     setError(null);
     try {
       const data = await getOrdenParaRemito(ordenId);
-      if (!data) throw new Error("No se encontrÃ³ la orden.");
+      if (!data) throw new Error("No se encontró la orden.");
 
       const [{ pdf }, { RemitoPDF }] = await Promise.all([
         import("@react-pdf/renderer"),

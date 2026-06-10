@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useActionState, useEffect } from "react";
 import { createClienteRapido, ClienteRapidoState } from "@/app/(protected)/ingresos/actions";
@@ -32,7 +32,7 @@ export default function NuevoClienteModal({ onCreado, onClose }: Props) {
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-xl leading-none"
           >
-            Ã—
+            ×
           </button>
         </div>
 
@@ -45,7 +45,7 @@ export default function NuevoClienteModal({ onCreado, onClose }: Props) {
         <form action={formAction} className="space-y-4">
           <div>
             <label htmlFor="modal-razon" className="block text-sm font-medium text-gray-700 mb-1">
-              RazÃ³n social <span className="text-red-500">*</span>
+              Razón social <span className="text-red-500">*</span>
             </label>
             <input
               id="modal-razon"
@@ -59,7 +59,7 @@ export default function NuevoClienteModal({ onCreado, onClose }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="modal-tel" className="block text-sm font-medium text-gray-700 mb-1">
-                TelÃ©fono
+                Teléfono
               </label>
               <input
                 id="modal-tel"
