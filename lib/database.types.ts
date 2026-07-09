@@ -323,6 +323,57 @@ export type Database = {
         }
         Relationships: []
       }
+      remitos_manuales: {
+        Row: {
+          id: string
+          empresa_id: string
+          cliente_id: string | null
+          razon_social: string | null
+          domicilio: string | null
+          condicion_iva: string | null
+          cuit: string | null
+          fecha: string
+          numero_fisico: string | null
+          cantidad: string | null
+          detalle: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          cliente_id?: string | null
+          razon_social?: string | null
+          domicilio?: string | null
+          condicion_iva?: string | null
+          cuit?: string | null
+          fecha?: string
+          numero_fisico?: string | null
+          cantidad?: string | null
+          detalle?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          cliente_id?: string | null
+          razon_social?: string | null
+          domicilio?: string | null
+          condicion_iva?: string | null
+          cuit?: string | null
+          fecha?: string
+          numero_fisico?: string | null
+          cantidad?: string | null
+          detalle?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {

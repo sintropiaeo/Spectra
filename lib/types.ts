@@ -9,6 +9,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Clientes", href: "/clientes" },
   { label: "Ingresos", href: "/ingresos" },
   { label: "Órdenes", href: "/ordenes" },
+  { label: "Remitos", href: "/remitos" },
   { label: "Alertas", href: "/alertas" },
   { label: "Consultas", href: "/consultas" },
   { label: "Configuración", href: "/configuracion", roles: ["admin", "superadmin"] },
