@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { RemitoItem } from "@/lib/remitoPrintConfig";
 
 export type RemitoState =
   | { error: string }
@@ -41,6 +42,23 @@ async function resolveEmpresaId() {
   return { supabase, empresa_id: empresa.id, userId: user.id };
 }
 
+function parseItems(formData: FormData): RemitoItem[] {
+  const raw = formData.get("items");
+  if (typeof raw !== "string") return [];
+  try {
+    const arr = JSON.parse(raw) as unknown;
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((it) => ({
+        cantidad: String((it as RemitoItem)?.cantidad ?? "").trim(),
+        detalle: String((it as RemitoItem)?.detalle ?? "").trim(),
+      }))
+      .filter((it) => it.cantidad || it.detalle);
+  } catch {
+    return [];
+  }
+}
+
 function buildPayload(formData: FormData) {
   const hoy = new Date().toISOString().slice(0, 10);
   return {
@@ -51,8 +69,7 @@ function buildPayload(formData: FormData) {
     cuit: str(formData, "cuit"),
     fecha: str(formData, "fecha") ?? hoy,
     numero_fisico: str(formData, "numero_fisico"),
-    cantidad: str(formData, "cantidad"),
-    detalle: str(formData, "detalle"),
+    items: parseItems(formData),
   };
 }
 
@@ -115,8 +132,7 @@ export type RemitoImpresion = {
   condicion_iva: string | null;
   cuit: string | null;
   fecha: string;
-  cantidad: string | null;
-  detalle: string | null;
+  items: RemitoItem[];
 };
 
 export async function getRemitoParaImpresion(
@@ -125,9 +141,22 @@ export async function getRemitoParaImpresion(
   const supabase = await createClient();
   const { data } = await supabase
     .from("remitos_manuales")
-    .select("razon_social, domicilio, condicion_iva, cuit, fecha, cantidad, detalle")
+    .select("razon_social, domicilio, condicion_iva, cuit, fecha, items")
     .eq("id", id)
     .single();
 
-  return data ?? null;
+  if (!data) return null;
+
+  const items = Array.isArray(data.items)
+    ? (data.items as unknown as RemitoItem[])
+    : [];
+
+  return {
+    razon_social: data.razon_social,
+    domicilio: data.domicilio,
+    condicion_iva: data.condicion_iva,
+    cuit: data.cuit,
+    fecha: data.fecha,
+    items,
+  };
 }

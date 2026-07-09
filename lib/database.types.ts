@@ -336,6 +336,7 @@ export type Database = {
           numero_fisico: string | null
           cantidad: string | null
           detalle: string | null
+          items: Json
           created_at: string
           updated_at: string
           created_by: string | null
@@ -352,6 +353,7 @@ export type Database = {
           numero_fisico?: string | null
           cantidad?: string | null
           detalle?: string | null
+          items?: Json
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -368,6 +370,7 @@ export type Database = {
           numero_fisico?: string | null
           cantidad?: string | null
           detalle?: string | null
+          items?: Json
           created_at?: string
           updated_at?: string
           created_by?: string | null

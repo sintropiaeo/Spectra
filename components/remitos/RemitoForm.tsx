@@ -15,7 +15,7 @@ import {
   updateRemito,
   RemitoState,
 } from "@/app/(protected)/remitos/actions";
-import { estimateDetalleCapacity } from "@/lib/remitoPrintConfig";
+import { estimateItemsCapacity, RemitoItem } from "@/lib/remitoPrintConfig";
 import NuevoClienteModal from "@/components/ingresos/NuevoClienteModal";
 import ImprimirRemitoButton from "./ImprimirRemitoButton";
 
@@ -33,6 +33,17 @@ const CONDICIONES_IVA = [
 ];
 
 const hoy = () => new Date().toISOString().slice(0, 10);
+
+function itemsIniciales(remito?: Tables<"remitos_manuales">): RemitoItem[] {
+  const arr = Array.isArray(remito?.items)
+    ? (remito!.items as unknown as RemitoItem[])
+    : [];
+  const limpios = arr.map((it) => ({
+    cantidad: String(it?.cantidad ?? ""),
+    detalle: String(it?.detalle ?? ""),
+  }));
+  return limpios.length > 0 ? limpios : [{ cantidad: "", detalle: "" }];
+}
 
 export default function RemitoForm({ clientes: initialClientes, remito }: Props) {
   const isEdit = !!remito;
@@ -55,8 +66,21 @@ export default function RemitoForm({ clientes: initialClientes, remito }: Props)
   const [cuit, setCuit] = useState(remito?.cuit ?? "");
   const [fecha, setFecha] = useState(remito?.fecha ?? hoy());
   const [numeroFisico, setNumeroFisico] = useState(remito?.numero_fisico ?? "");
-  const [cantidad, setCantidad] = useState(remito?.cantidad ?? "");
-  const [detalle, setDetalle] = useState(remito?.detalle ?? "");
+  const [items, setItems] = useState<RemitoItem[]>(() => itemsIniciales(remito));
+
+  function updateItem(i: number, campo: keyof RemitoItem, valor: string) {
+    setItems((prev) =>
+      prev.map((it, idx) => (idx === i ? { ...it, [campo]: valor } : it))
+    );
+  }
+  function addItem() {
+    setItems((prev) => [...prev, { cantidad: "", detalle: "" }]);
+  }
+  function removeItem(i: number) {
+    setItems((prev) =>
+      prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev
+    );
+  }
 
   // ── Buscador de cliente (misma lógica que ClienteAutocomplete) ──
   const [query, setQuery] = useState("");
@@ -113,7 +137,7 @@ export default function RemitoForm({ clientes: initialClientes, remito }: Props)
     }
   }, [state, isEdit, router]);
 
-  const capacidad = estimateDetalleCapacity(detalle);
+  const capacidad = estimateItemsCapacity(items);
   const guardadoOk = isEdit && state && "success" in state;
 
   const inputCls =
@@ -148,6 +172,7 @@ export default function RemitoForm({ clientes: initialClientes, remito }: Props)
       <form action={formAction} className="space-y-6">
         {/* Campos ocultos que van al FormData */}
         <input type="hidden" name="cliente_id" value={clienteId} />
+        <input type="hidden" name="items" value={JSON.stringify(items)} />
 
         {/* ── Cliente ── */}
         <section className="bg-white rounded-lg border border-gray-200 p-5 space-y-3">
@@ -341,36 +366,78 @@ export default function RemitoForm({ clientes: initialClientes, remito }: Props)
             </div>
           </div>
 
-          <div>
-            <label htmlFor="cantidad" className={labelCls}>
-              Cantidad
-            </label>
-            <input
-              id="cantidad"
-              name="cantidad"
-              value={cantidad}
-              onChange={(e) => setCantidad(e.target.value)}
-              className={inputCls}
-            />
-          </div>
+          {/* Ítems: una fila por renglón del papel físico */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className={labelCls + " mb-0"}>Ítems (filas)</label>
+              <span className="text-xs text-gray-400">
+                {capacidad.filasUsadas} de ~{capacidad.filasMax} renglones
+              </span>
+            </div>
 
-          <div>
-            <label htmlFor="detalle" className={labelCls}>
-              Detalle
-            </label>
-            <textarea
-              id="detalle"
-              name="detalle"
-              value={detalle}
-              onChange={(e) => setDetalle(e.target.value)}
-              rows={8}
-              className={`${inputCls} resize-y font-mono`}
-            />
-            {!capacidad.fits && (
+            {/* Cabecera de columnas */}
+            <div className="flex gap-2 px-1">
+              <span className="w-24 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Cantidad
+              </span>
+              <span className="flex-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Detalle
+              </span>
+              <span className="w-8" />
+            </div>
+
+            {items.map((it, i) => {
+              const detalleLargo = (it.detalle?.length ?? 0) > capacidad.charsPorLinea;
+              return (
+                <div key={i} className="flex gap-2 items-start">
+                  <input
+                    aria-label={`Cantidad fila ${i + 1}`}
+                    value={it.cantidad}
+                    onChange={(e) => updateItem(i, "cantidad", e.target.value)}
+                    className={`w-24 ${inputCls}`}
+                  />
+                  <div className="flex-1">
+                    <input
+                      aria-label={`Detalle fila ${i + 1}`}
+                      value={it.detalle}
+                      onChange={(e) => updateItem(i, "detalle", e.target.value)}
+                      className={`${inputCls} ${
+                        detalleLargo ? "border-amber-400" : ""
+                      }`}
+                    />
+                    {detalleLargo && (
+                      <p className="mt-0.5 text-xs text-amber-600">
+                        Puede no entrar en el ancho del renglón (~
+                        {capacidad.charsPorLinea} caracteres).
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    disabled={items.length === 1}
+                    title="Eliminar fila"
+                    className="w-8 h-[38px] flex items-center justify-center text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-gray-400 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={addItem}
+              className="mt-1 inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+            >
+              + Agregar fila
+            </button>
+
+            {capacidad.filasUsadas > capacidad.filasMax && (
               <p className="mt-1 text-xs text-amber-600">
-                ⚠ El texto usa ~{capacidad.linesUsed} líneas y el espacio del
-                papel admite ~{capacidad.maxLines}. Puede que no entre al
-                imprimir; acortalo o revisá la calibración.
+                ⚠ Cargaste {capacidad.filasUsadas} filas y el papel admite ~
+                {capacidad.filasMax}. Las últimas pueden no entrar; revisá la
+                calibración o usá otro remito.
               </p>
             )}
           </div>

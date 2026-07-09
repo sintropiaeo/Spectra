@@ -20,10 +20,9 @@ export default async function RemitosPage({
 
   let query = supabase
     .from("remitos_manuales")
-    .select(
-      "id, fecha, razon_social, cuit, numero_fisico, cantidad, detalle",
-      { count: "exact" }
-    );
+    .select("id, fecha, razon_social, cuit, numero_fisico, items", {
+      count: "exact",
+    });
 
   // Búsqueda por nombre (razón social snapshot), CUIT o N° físico
   if (q?.trim()) {

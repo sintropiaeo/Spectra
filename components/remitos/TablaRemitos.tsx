@@ -6,15 +6,24 @@ import { useRouter } from "next/navigation";
 import { deleteRemito } from "@/app/(protected)/remitos/actions";
 import ImprimirRemitoButton from "./ImprimirRemitoButton";
 
+type Item = { cantidad: string; detalle: string };
+
 type RemitoRow = {
   id: string;
   fecha: string;
   razon_social: string | null;
   cuit: string | null;
   numero_fisico: string | null;
-  cantidad: string | null;
-  detalle: string | null;
+  items: unknown;
 };
+
+function normItems(raw: unknown): Item[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((it) => ({
+    cantidad: String((it as Item)?.cantidad ?? ""),
+    detalle: String((it as Item)?.detalle ?? ""),
+  }));
+}
 
 type SearchParams = Record<string, string | undefined>;
 
@@ -86,7 +95,7 @@ export default function TablaRemitos({
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Razón social</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">N° físico</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cantidad</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ítems</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Detalle</th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
@@ -105,8 +114,21 @@ export default function TablaRemitos({
                 <td className="px-4 py-3 text-gray-500 font-mono text-xs whitespace-nowrap">
                   {r.numero_fisico || "—"}
                 </td>
-                <td className="px-4 py-3 text-gray-500">{r.cantidad || "—"}</td>
-                <td className="px-4 py-3 text-gray-500 max-w-xs">{truncate(r.detalle)}</td>
+                {(() => {
+                  const its = normItems(r.items);
+                  const primero = its[0]?.detalle ?? "";
+                  const extra = its.length > 1 ? ` (+${its.length - 1})` : "";
+                  return (
+                    <>
+                      <td className="px-4 py-3 text-gray-500 tabular-nums">
+                        {its.length || "—"}
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 max-w-xs">
+                        {its.length ? truncate(primero) + extra : "—"}
+                      </td>
+                    </>
+                  );
+                })()}
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
                     <ImprimirRemitoButton remitoId={r.id} compact />

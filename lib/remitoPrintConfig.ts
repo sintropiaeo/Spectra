@@ -19,17 +19,33 @@ export type CampoCoord = {
   maxHeight_mm?: number;
 };
 
+// -------------------------------------------------------------
+// Campos del encabezado (uno solo por remito)
+// -------------------------------------------------------------
 export const REMITO_COORDS = {
   fecha: { x_mm: 150, y_mm: 40, maxWidth_mm: 40 },
   razonSocial: { x_mm: 45, y_mm: 62, maxWidth_mm: 90 },
   domicilio: { x_mm: 140, y_mm: 62, maxWidth_mm: 60 },
   condicionIva: { x_mm: 45, y_mm: 78, maxWidth_mm: 60 },
   cuit: { x_mm: 150, y_mm: 78, maxWidth_mm: 50 },
-  cantidad: { x_mm: 20, y_mm: 100, maxWidth_mm: 20 },
-  detalle: { x_mm: 55, y_mm: 100, maxWidth_mm: 130, maxHeight_mm: 150 },
 } satisfies Record<string, CampoCoord>;
 
 export type RemitoCampo = keyof typeof REMITO_COORDS;
+
+// -------------------------------------------------------------
+// Tabla de ítems (varias filas: cantidad + detalle por fila).
+// `y_mm` es la Y de la PRIMERA fila. Cada fila siguiente baja
+// `filaAltura_mm`. `filasMax` = cuántos renglones tiene el papel.
+// -------------------------------------------------------------
+export const REMITO_TABLA = {
+  y_mm: 100, // Y de la primera fila
+  filaAltura_mm: 8, // separación vertical entre filas
+  filasMax: 12, // renglones disponibles en el papel físico
+  cantidad: { x_mm: 20, maxWidth_mm: 25 },
+  detalle: { x_mm: 55, maxWidth_mm: 130 },
+};
+
+export type RemitoItem = { cantidad: string; detalle: string };
 
 // -------------------------------------------------------------
 // Conversión mm → puntos PDF (react-pdf trabaja en pt).
@@ -45,36 +61,40 @@ export function mmToPt(mm: number): number {
 // Tipografía de impresión.
 // -------------------------------------------------------------
 export const PRINT_FONT_SIZE = 10; // pt, para todos los campos
-export const DETALLE_FONT_SIZE = 10; // pt, para el bloque de detalle
-export const DETALLE_LINE_HEIGHT = 1.25; // multiplicador
 
 // -------------------------------------------------------------
-// Estimación (aproximada) de si el texto de `detalle` entra en el
-// espacio disponible. Sirve para avisar en pantalla ANTES de imprimir.
-// Es heurística: asume ancho de caracter promedio en Helvetica.
+// Estimación (aproximada) de si los ítems entran en el espacio.
+// Sirve para avisar en pantalla ANTES de imprimir. Heurística:
+// asume ancho de caracter promedio en Helvetica.
 // -------------------------------------------------------------
-const AVG_CHAR_WIDTH_RATIO = 0.5; // ancho medio de char ≈ 0.5 × fontSize (Helvetica)
+const AVG_CHAR_WIDTH_RATIO = 0.5; // ancho medio de char ≈ 0.5 × fontSize
 
-export function estimateDetalleCapacity(detalle: string): {
-  linesUsed: number;
-  maxLines: number;
+export function charsPorLineaDetalle(): number {
+  const maxWidthPt = mmToPt(REMITO_TABLA.detalle.maxWidth_mm);
+  const charWidthPt = PRINT_FONT_SIZE * AVG_CHAR_WIDTH_RATIO;
+  return Math.max(1, Math.floor(maxWidthPt / charWidthPt));
+}
+
+export function estimateItemsCapacity(items: RemitoItem[]): {
+  filasUsadas: number;
+  filasMax: number;
+  charsPorLinea: number;
+  algunoLargo: boolean;
   fits: boolean;
 } {
-  const { maxWidth_mm, maxHeight_mm } = REMITO_COORDS.detalle;
-  const maxWidthPt = mmToPt(maxWidth_mm);
-  const maxHeightPt = mmToPt(maxHeight_mm ?? 150);
-
-  const charWidthPt = DETALLE_FONT_SIZE * AVG_CHAR_WIDTH_RATIO;
-  const charsPerLine = Math.max(1, Math.floor(maxWidthPt / charWidthPt));
-  const lineHeightPt = DETALLE_FONT_SIZE * DETALLE_LINE_HEIGHT;
-  const maxLines = Math.max(1, Math.floor(maxHeightPt / lineHeightPt));
-
-  // Contar líneas considerando saltos manuales + wrap por ancho
-  const paragraphs = (detalle ?? "").split("\n");
-  let linesUsed = 0;
-  for (const p of paragraphs) {
-    linesUsed += Math.max(1, Math.ceil(p.length / charsPerLine));
-  }
-
-  return { linesUsed, maxLines, fits: linesUsed <= maxLines };
+  const charsPorLinea = charsPorLineaDetalle();
+  const conContenido = items.filter(
+    (it) => (it.cantidad?.trim() || it.detalle?.trim())
+  );
+  const algunoLargo = conContenido.some(
+    (it) => (it.detalle?.length ?? 0) > charsPorLinea
+  );
+  const filasUsadas = conContenido.length;
+  return {
+    filasUsadas,
+    filasMax: REMITO_TABLA.filasMax,
+    charsPorLinea,
+    algunoLargo,
+    fits: filasUsadas <= REMITO_TABLA.filasMax && !algunoLargo,
+  };
 }

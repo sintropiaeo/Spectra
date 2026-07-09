@@ -1,12 +1,11 @@
 import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer";
 import {
   REMITO_COORDS,
+  REMITO_TABLA,
   RemitoCampo,
   CampoCoord,
   mmToPt,
   PRINT_FONT_SIZE,
-  DETALLE_FONT_SIZE,
-  DETALLE_LINE_HEIGHT,
 } from "@/lib/remitoPrintConfig";
 import type { RemitoImpresion } from "@/app/(protected)/remitos/actions";
 
@@ -31,14 +30,17 @@ const s = StyleSheet.create({
   calibLineH: {
     position: "absolute",
     height: 0.5,
-    width: 6,
     backgroundColor: "#9ca3af",
   },
   calibLineV: {
     position: "absolute",
     width: 0.5,
-    height: 6,
     backgroundColor: "#9ca3af",
+  },
+  calibRowLine: {
+    position: "absolute",
+    height: 0.3,
+    backgroundColor: "#d1d5db",
   },
   calibLabel: {
     position: "absolute",
@@ -53,7 +55,7 @@ const s = StyleSheet.create({
   },
 });
 
-// Marca "+" centrada exactamente en (xPt, yPt) + etiqueta del campo.
+// Crucecita "+" centrada en (xPt,yPt) + etiqueta + caja del área.
 function CalibMark({
   xPt,
   yPt,
@@ -69,16 +71,11 @@ function CalibMark({
 }) {
   return (
     <>
-      {/* Caja del área disponible (gris muy claro, punteada) */}
       <View
-        style={[
-          s.calibBox,
-          { left: xPt, top: yPt, width: widthPt, height: heightPt },
-        ]}
+        style={[s.calibBox, { left: xPt, top: yPt, width: widthPt, height: heightPt }]}
       />
-      {/* Crucecita en el ancla (top-left del texto) */}
-      <View style={[s.calibLineH, { left: xPt - 3, top: yPt }]} />
-      <View style={[s.calibLineV, { left: xPt, top: yPt - 3 }]} />
+      <View style={[s.calibLineH, { left: xPt - 3, top: yPt, width: 6 }]} />
+      <View style={[s.calibLineV, { left: xPt, top: yPt - 3, height: 6 }]} />
       <Text style={[s.calibLabel, { left: xPt + 4, top: yPt - 4 }]}>{label}</Text>
     </>
   );
@@ -91,65 +88,120 @@ export function RemitoPrintPDF({
   data: RemitoImpresion;
   calibration?: boolean;
 }) {
-  // Valor de texto por campo
+  // ── Campos del encabezado ──
   const valores: Record<RemitoCampo, string> = {
     fecha: fmtDate(data.fecha),
     razonSocial: data.razon_social ?? "",
     domicilio: data.domicilio ?? "",
     condicionIva: data.condicion_iva ?? "",
     cuit: data.cuit ?? "",
-    cantidad: data.cantidad ?? "",
-    detalle: data.detalle ?? "",
   };
-
   const campos = Object.keys(REMITO_COORDS) as RemitoCampo[];
+
+  // ── Ítems (filas de la tabla) ──
+  const items = (data.items ?? []).slice(0, REMITO_TABLA.filasMax);
+  const cantCol = REMITO_TABLA.cantidad;
+  const detCol = REMITO_TABLA.detalle;
+  const tablaXPt = mmToPt(cantCol.x_mm);
+  const tablaWidthPt =
+    mmToPt(detCol.x_mm + detCol.maxWidth_mm) - mmToPt(cantCol.x_mm);
+  const tablaTopPt = mmToPt(REMITO_TABLA.y_mm);
+  const filaAltPt = mmToPt(REMITO_TABLA.filaAltura_mm);
 
   return (
     <Document title="Remito (impresión)">
       <Page size="A4" style={s.page}>
+        {/* ── Encabezado ── */}
         {campos.map((campo) => {
           const c: CampoCoord = REMITO_COORDS[campo];
           const xPt = mmToPt(c.x_mm);
           const yPt = mmToPt(c.y_mm);
           const widthPt = mmToPt(c.maxWidth_mm);
-          const esDetalle = campo === "detalle";
-          const heightPt = mmToPt(c.maxHeight_mm ?? (esDetalle ? 150 : 8));
-
           return (
             <View key={campo}>
-              <Text
-                style={[
-                  s.campo,
-                  {
-                    left: xPt,
-                    top: yPt,
-                    width: widthPt,
-                    fontSize: esDetalle ? DETALLE_FONT_SIZE : PRINT_FONT_SIZE,
-                    ...(esDetalle
-                      ? {
-                          height: heightPt,
-                          lineHeight: DETALLE_LINE_HEIGHT,
-                          overflow: "hidden",
-                        }
-                      : {}),
-                  },
-                ]}
-              >
+              <Text style={[s.campo, { left: xPt, top: yPt, width: widthPt }]}>
                 {valores[campo]}
               </Text>
-
               {calibration && (
                 <CalibMark
                   xPt={xPt}
                   yPt={yPt}
                   label={campo}
                   widthPt={widthPt}
-                  heightPt={heightPt}
+                  heightPt={mmToPt(6)}
                 />
               )}
             </View>
           );
         })}
+
+        {/* ── Filas de ítems ── */}
+        {items.map((it, i) => {
+          const yPt = mmToPt(REMITO_TABLA.y_mm + i * REMITO_TABLA.filaAltura_mm);
+          return (
+            <View key={`item-${i}`}>
+              <Text
+                style={[
+                  s.campo,
+                  { left: mmToPt(cantCol.x_mm), top: yPt, width: mmToPt(cantCol.maxWidth_mm) },
+                ]}
+              >
+                {it.cantidad}
+              </Text>
+              <Text
+                style={[
+                  s.campo,
+                  { left: mmToPt(detCol.x_mm), top: yPt, width: mmToPt(detCol.maxWidth_mm) },
+                ]}
+              >
+                {it.detalle}
+              </Text>
+            </View>
+          );
+        })}
+
+        {/* ── Calibración de la tabla ── */}
+        {calibration && (
+          <View>
+            {/* Caja del área total de la tabla */}
+            <View
+              style={[
+                s.calibBox,
+                {
+                  left: tablaXPt,
+                  top: tablaTopPt,
+                  width: tablaWidthPt,
+                  height: filaAltPt * REMITO_TABLA.filasMax,
+                },
+              ]}
+            />
+            {/* Líneas de cada renglón */}
+            {Array.from({ length: REMITO_TABLA.filasMax + 1 }).map((_, k) => (
+              <View
+                key={`rowline-${k}`}
+                style={[
+                  s.calibRowLine,
+                  { left: tablaXPt, top: tablaTopPt + k * filaAltPt, width: tablaWidthPt },
+                ]}
+              />
+            ))}
+            {/* Cruces en las columnas (primera fila) */}
+            <CalibMark
+              xPt={mmToPt(cantCol.x_mm)}
+              yPt={tablaTopPt}
+              label="cantidad"
+              widthPt={mmToPt(cantCol.maxWidth_mm)}
+              heightPt={filaAltPt}
+            />
+            <CalibMark
+              xPt={mmToPt(detCol.x_mm)}
+              yPt={tablaTopPt}
+              label="detalle"
+              widthPt={mmToPt(detCol.maxWidth_mm)}
+              heightPt={filaAltPt}
+            />
+          </View>
+        )}
       </Page>
     </Document>
   );
