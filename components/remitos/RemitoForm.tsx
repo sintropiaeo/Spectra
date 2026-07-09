@@ -377,25 +377,27 @@ export default function RemitoForm({ clientes: initialClientes, remito }: Props)
 
             {/* Cabecera de columnas */}
             <div className="flex gap-2 px-1">
-              <span className="w-24 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <span className="w-28 shrink-0 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 Cantidad
               </span>
               <span className="flex-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 Detalle
               </span>
-              <span className="w-8" />
+              <span className="w-8 shrink-0" />
             </div>
 
             {items.map((it, i) => {
               const detalleLargo = (it.detalle?.length ?? 0) > capacidad.charsPorLinea;
               return (
                 <div key={i} className="flex gap-2 items-start">
-                  <input
-                    aria-label={`Cantidad fila ${i + 1}`}
-                    value={it.cantidad}
-                    onChange={(e) => updateItem(i, "cantidad", e.target.value)}
-                    className={`w-24 ${inputCls}`}
-                  />
+                  <div className="w-28 shrink-0">
+                    <input
+                      aria-label={`Cantidad fila ${i + 1}`}
+                      value={it.cantidad}
+                      onChange={(e) => updateItem(i, "cantidad", e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
                   <div className="flex-1">
                     <input
                       aria-label={`Detalle fila ${i + 1}`}
@@ -417,7 +419,7 @@ export default function RemitoForm({ clientes: initialClientes, remito }: Props)
                     onClick={() => removeItem(i)}
                     disabled={items.length === 1}
                     title="Eliminar fila"
-                    className="w-8 h-[38px] flex items-center justify-center text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-gray-400 transition-colors"
+                    className="w-8 shrink-0 h-[38px] flex items-center justify-center text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-gray-400 transition-colors"
                   >
                     ×
                   </button>
