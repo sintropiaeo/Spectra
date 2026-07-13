@@ -48,6 +48,80 @@ export const REMITO_TABLA = {
 export type RemitoItem = { cantidad: string; detalle: string };
 
 // -------------------------------------------------------------
+// Shape serializable de la calibración (lo que se guarda en jsonb
+// en remito_print_config.coords). Combina los campos del encabezado
+// con la configuración de la tabla de ítems.
+// -------------------------------------------------------------
+export type ColCoord = { x_mm: number; maxWidth_mm: number };
+
+export type RemitoTablaCoords = {
+  y_mm: number;
+  filaAltura_mm: number;
+  filasMax: number;
+  cantidad: ColCoord;
+  detalle: ColCoord;
+};
+
+export type RemitoPrintCoords = {
+  campos: Record<RemitoCampo, CampoCoord>;
+  tabla: RemitoTablaCoords;
+};
+
+// Defaults = los placeholders actuales (fuente de verdad si no hay
+// fila guardada para la empresa).
+export const DEFAULT_REMITO_COORDS: RemitoPrintCoords = {
+  campos: { ...REMITO_COORDS },
+  tabla: { ...REMITO_TABLA },
+};
+
+function num(v: unknown, fallback: number): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+// Fusiona lo guardado (jsonb, posiblemente parcial o inválido) sobre
+// los defaults, garantizando siempre un objeto completo y numérico.
+export function mergeCoords(saved: unknown): RemitoPrintCoords {
+  if (!saved || typeof saved !== "object") return DEFAULT_REMITO_COORDS;
+  const s = saved as {
+    campos?: Record<string, Partial<CampoCoord>>;
+    tabla?: Partial<RemitoTablaCoords> & {
+      cantidad?: Partial<ColCoord>;
+      detalle?: Partial<ColCoord>;
+    };
+  };
+
+  const campos = {} as Record<RemitoCampo, CampoCoord>;
+  (Object.keys(DEFAULT_REMITO_COORDS.campos) as RemitoCampo[]).forEach((k) => {
+    const d = DEFAULT_REMITO_COORDS.campos[k];
+    const sv = s.campos?.[k] ?? {};
+    campos[k] = {
+      x_mm: num(sv.x_mm, d.x_mm),
+      y_mm: num(sv.y_mm, d.y_mm),
+      maxWidth_mm: num(sv.maxWidth_mm, d.maxWidth_mm),
+    };
+  });
+
+  const dt = DEFAULT_REMITO_COORDS.tabla;
+  const st = s.tabla ?? {};
+  const tabla: RemitoTablaCoords = {
+    y_mm: num(st.y_mm, dt.y_mm),
+    filaAltura_mm: num(st.filaAltura_mm, dt.filaAltura_mm),
+    filasMax: Math.max(1, Math.round(num(st.filasMax, dt.filasMax))),
+    cantidad: {
+      x_mm: num(st.cantidad?.x_mm, dt.cantidad.x_mm),
+      maxWidth_mm: num(st.cantidad?.maxWidth_mm, dt.cantidad.maxWidth_mm),
+    },
+    detalle: {
+      x_mm: num(st.detalle?.x_mm, dt.detalle.x_mm),
+      maxWidth_mm: num(st.detalle?.maxWidth_mm, dt.detalle.maxWidth_mm),
+    },
+  };
+
+  return { campos, tabla };
+}
+
+// -------------------------------------------------------------
 // Conversión mm → puntos PDF (react-pdf trabaja en pt).
 // 1 mm = 2.83465 pt (72 pt por pulgada, 25.4 mm por pulgada).
 // -------------------------------------------------------------

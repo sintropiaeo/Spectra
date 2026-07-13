@@ -24,8 +24,8 @@ export default function ImprimirRemitoButton({
     setLoading(true);
     setError(null);
     try {
-      const data = await getRemitoParaImpresion(remitoId);
-      if (!data) throw new Error("No se encontró el remito.");
+      const payload = await getRemitoParaImpresion(remitoId);
+      if (!payload) throw new Error("No se encontró el remito.");
 
       const [{ pdf }, { RemitoPrintPDF }] = await Promise.all([
         import("@react-pdf/renderer"),
@@ -33,7 +33,11 @@ export default function ImprimirRemitoButton({
       ]);
 
       const blob = await pdf(
-        <RemitoPrintPDF data={data} calibration={cal} />
+        <RemitoPrintPDF
+          data={payload.remito}
+          coords={payload.coords}
+          calibration={cal}
+        />
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { RemitoItem } from "@/lib/remitoPrintConfig";
+import type { Json } from "@/lib/database.types";
+import {
+  RemitoItem,
+  RemitoPrintCoords,
+  mergeCoords,
+} from "@/lib/remitoPrintConfig";
 
 export type RemitoState =
   | { error: string }
@@ -23,12 +28,14 @@ async function resolveEmpresaId() {
 
   const { data: perfil } = await supabase
     .from("perfiles")
-    .select("empresa_id")
+    .select("empresa_id, rol")
     .eq("id", user.id)
     .single();
 
+  const rol = perfil?.rol ?? null;
+
   if (perfil?.empresa_id)
-    return { supabase, empresa_id: perfil.empresa_id, userId: user.id };
+    return { supabase, empresa_id: perfil.empresa_id, userId: user.id, rol };
 
   // superadmin: usar la única empresa existente por ahora
   const { data: empresa } = await supabase
@@ -39,7 +46,7 @@ async function resolveEmpresaId() {
 
   if (!empresa)
     throw new Error("No hay empresas registradas. Creá una desde Supabase.");
-  return { supabase, empresa_id: empresa.id, userId: user.id };
+  return { supabase, empresa_id: empresa.id, userId: user.id, rol };
 }
 
 function parseItems(formData: FormData): RemitoItem[] {
@@ -135,13 +142,18 @@ export type RemitoImpresion = {
   items: RemitoItem[];
 };
 
+export type RemitoImpresionPayload = {
+  remito: RemitoImpresion;
+  coords: RemitoPrintCoords;
+};
+
 export async function getRemitoParaImpresion(
   id: string
-): Promise<RemitoImpresion | null> {
+): Promise<RemitoImpresionPayload | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("remitos_manuales")
-    .select("razon_social, domicilio, condicion_iva, cuit, fecha, items")
+    .select("empresa_id, razon_social, domicilio, condicion_iva, cuit, fecha, items")
     .eq("id", id)
     .single();
 
@@ -151,12 +163,73 @@ export async function getRemitoParaImpresion(
     ? (data.items as unknown as RemitoItem[])
     : [];
 
+  // Coordenadas de calibración de la empresa dueña del remito.
+  const { data: cfg } = await supabase
+    .from("remito_print_config")
+    .select("coords")
+    .eq("empresa_id", data.empresa_id)
+    .maybeSingle();
+
   return {
-    razon_social: data.razon_social,
-    domicilio: data.domicilio,
-    condicion_iva: data.condicion_iva,
-    cuit: data.cuit,
-    fecha: data.fecha,
-    items,
+    remito: {
+      razon_social: data.razon_social,
+      domicilio: data.domicilio,
+      condicion_iva: data.condicion_iva,
+      cuit: data.cuit,
+      fecha: data.fecha,
+      items,
+    },
+    coords: mergeCoords(cfg?.coords ?? null),
   };
+}
+
+// ── Calibración: leer/guardar coordenadas de impresión ──────────
+
+export async function getRemitoCoords(): Promise<RemitoPrintCoords> {
+  const { supabase, empresa_id } = await resolveEmpresaId();
+  const { data } = await supabase
+    .from("remito_print_config")
+    .select("coords")
+    .eq("empresa_id", empresa_id)
+    .maybeSingle();
+  return mergeCoords(data?.coords ?? null);
+}
+
+export type CoordsState =
+  | { error: string }
+  | { success: true }
+  | null;
+
+export async function saveRemitoCoords(
+  coords: RemitoPrintCoords
+): Promise<CoordsState> {
+  try {
+    const { supabase, empresa_id, userId, rol } = await resolveEmpresaId();
+
+    if (!rol || !["admin", "superadmin"].includes(rol)) {
+      return { error: "No tenés permisos para editar la calibración." };
+    }
+
+    // Normalizar/validar antes de guardar (numérico y completo)
+    const limpio = mergeCoords(coords);
+
+    const { error } = await supabase
+      .from("remito_print_config")
+      .upsert(
+        {
+          empresa_id,
+          coords: limpio as unknown as Json,
+          updated_by: userId,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "empresa_id" }
+      );
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/remitos/calibracion");
+    return { success: true };
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
 }

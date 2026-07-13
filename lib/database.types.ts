@@ -377,6 +377,27 @@ export type Database = {
         }
         Relationships: []
       }
+      remito_print_config: {
+        Row: {
+          empresa_id: string
+          coords: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          empresa_id: string
+          coords?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          empresa_id?: string
+          coords?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {

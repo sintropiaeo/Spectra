@@ -1,7 +1,7 @@
 import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer";
 import {
-  REMITO_COORDS,
-  REMITO_TABLA,
+  DEFAULT_REMITO_COORDS,
+  RemitoPrintCoords,
   RemitoCampo,
   CampoCoord,
   mmToPt,
@@ -83,11 +83,15 @@ function CalibMark({
 
 export function RemitoPrintPDF({
   data,
+  coords = DEFAULT_REMITO_COORDS,
   calibration = false,
 }: {
   data: RemitoImpresion;
+  coords?: RemitoPrintCoords;
   calibration?: boolean;
 }) {
+  const { campos: campoCoords, tabla } = coords;
+
   // ── Campos del encabezado ──
   const valores: Record<RemitoCampo, string> = {
     fecha: fmtDate(data.fecha),
@@ -96,24 +100,24 @@ export function RemitoPrintPDF({
     condicionIva: data.condicion_iva ?? "",
     cuit: data.cuit ?? "",
   };
-  const campos = Object.keys(REMITO_COORDS) as RemitoCampo[];
+  const campos = Object.keys(campoCoords) as RemitoCampo[];
 
   // ── Ítems (filas de la tabla) ──
-  const items = (data.items ?? []).slice(0, REMITO_TABLA.filasMax);
-  const cantCol = REMITO_TABLA.cantidad;
-  const detCol = REMITO_TABLA.detalle;
+  const items = (data.items ?? []).slice(0, tabla.filasMax);
+  const cantCol = tabla.cantidad;
+  const detCol = tabla.detalle;
   const tablaXPt = mmToPt(cantCol.x_mm);
   const tablaWidthPt =
     mmToPt(detCol.x_mm + detCol.maxWidth_mm) - mmToPt(cantCol.x_mm);
-  const tablaTopPt = mmToPt(REMITO_TABLA.y_mm);
-  const filaAltPt = mmToPt(REMITO_TABLA.filaAltura_mm);
+  const tablaTopPt = mmToPt(tabla.y_mm);
+  const filaAltPt = mmToPt(tabla.filaAltura_mm);
 
   return (
     <Document title="Remito (impresión)">
       <Page size="A4" style={s.page}>
         {/* ── Encabezado ── */}
         {campos.map((campo) => {
-          const c: CampoCoord = REMITO_COORDS[campo];
+          const c: CampoCoord = campoCoords[campo];
           const xPt = mmToPt(c.x_mm);
           const yPt = mmToPt(c.y_mm);
           const widthPt = mmToPt(c.maxWidth_mm);
@@ -137,7 +141,7 @@ export function RemitoPrintPDF({
 
         {/* ── Filas de ítems ── */}
         {items.map((it, i) => {
-          const yPt = mmToPt(REMITO_TABLA.y_mm + i * REMITO_TABLA.filaAltura_mm);
+          const yPt = mmToPt(tabla.y_mm + i * tabla.filaAltura_mm);
           return (
             <View key={`item-${i}`}>
               <Text
@@ -171,12 +175,12 @@ export function RemitoPrintPDF({
                   left: tablaXPt,
                   top: tablaTopPt,
                   width: tablaWidthPt,
-                  height: filaAltPt * REMITO_TABLA.filasMax,
+                  height: filaAltPt * tabla.filasMax,
                 },
               ]}
             />
             {/* Líneas de cada renglón */}
-            {Array.from({ length: REMITO_TABLA.filasMax + 1 }).map((_, k) => (
+            {Array.from({ length: tabla.filasMax + 1 }).map((_, k) => (
               <View
                 key={`rowline-${k}`}
                 style={[
