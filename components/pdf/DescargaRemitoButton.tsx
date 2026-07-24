@@ -8,6 +8,8 @@ type Props = {
   numero: number;
   variant?: "primary" | "outline";
   label?: string;
+  /** Botón chico para filas de tabla. */
+  compact?: boolean;
 };
 
 export default function DescargaRemitoButton({
@@ -15,6 +17,7 @@ export default function DescargaRemitoButton({
   numero,
   variant = "primary",
   label = "Generar Remito de Salida",
+  compact = false,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +47,20 @@ export default function DescargaRemitoButton({
     } finally {
       setLoading(false);
     }
+  }
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        title="Imprimir remito de salida"
+        className="px-2.5 py-1.5 text-xs font-medium text-green-700 border border-green-200 rounded-md hover:bg-green-50 disabled:opacity-50 transition-colors"
+      >
+        {loading ? "…" : "Imprimir"}
+      </button>
+    );
   }
 
   const base =

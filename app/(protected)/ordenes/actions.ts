@@ -127,6 +127,7 @@ export async function getOrdenesIngresadas() {
       clientes:cliente_id ( razon_social )
     `)
     .eq("estado", "ingresado")
+    .eq("activo", true)
     .order("numero", { ascending: false });
   return data ?? [];
 }
@@ -139,7 +140,7 @@ export async function getOrdenParaSalida(ordenId: string) {
     .from("ordenes")
     .select(`
       id, numero, estado, marca, modelo, numero_serie,
-      estacion, deficiencia, empresa_id, tecnico, fecha_ingreso,
+      estacion, deficiencia, empresa_id, tecnico, fecha_ingreso, fecha_salida,
       moneda, aplica_iva, mostrar_cotizacion, cotizacion,
       clientes:cliente_id ( razon_social, telefono1, localidad )
     `)
@@ -179,6 +180,7 @@ export async function getOrdenParaSalida(ordenId: string) {
       deficiencia: orden.deficiencia,
       tecnico: orden.tecnico,
       fecha_ingreso: orden.fecha_ingreso,
+      fecha_salida: orden.fecha_salida,
       moneda: orden.moneda ?? "USD",
       aplica_iva: orden.aplica_iva ?? false,
       mostrar_cotizacion: orden.mostrar_cotizacion ?? true,
@@ -205,7 +207,10 @@ export async function confirmarSalida(
     aplica_iva: boolean;
     mostrar_cotizacion: boolean;
     cotizacion: number | null;
-  }
+  },
+  // Al EDITAR una salida ya registrada, preservar la fecha original.
+  // Al registrar por primera vez, usar hoy.
+  fechaSalida?: string | null
 ): Promise<{ success: true } | { error: string }> {
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
@@ -214,7 +219,7 @@ export async function confirmarSalida(
   const { error } = await supabase.rpc("confirmar_salida_orden", {
     p_orden_id:     ordenId,
     p_tecnico:      tecnico,
-    p_fecha_salida: today,
+    p_fecha_salida: fechaSalida || today,
     p_items:        items,
   });
 
@@ -235,5 +240,30 @@ export async function confirmarSalida(
   revalidatePath(`/ordenes/${ordenId}`);
   revalidatePath(`/ordenes/${ordenId}/salida`);
 
+  return { success: true };
+}
+
+// ─── Revertir una salida ya registrada ───────────────────────
+// Vuelve la orden a 'ingresado', limpia la fecha de salida y borra
+// los ítems de trabajo. La orden vuelve a quedar pendiente de entrega.
+export async function revertirSalida(
+  ordenId: string
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient();
+
+  const { error: itemsError } = await supabase
+    .from("items_trabajo")
+    .delete()
+    .eq("orden_id", ordenId);
+  if (itemsError) return { error: itemsError.message };
+
+  const { error: ordenError } = await supabase
+    .from("ordenes")
+    .update({ estado: "ingresado", fecha_salida: null })
+    .eq("id", ordenId);
+  if (ordenError) return { error: ordenError.message };
+
+  revalidatePath("/ordenes");
+  revalidatePath(`/ordenes/${ordenId}/salida`);
   return { success: true };
 }

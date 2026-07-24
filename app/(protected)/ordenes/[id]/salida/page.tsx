@@ -36,7 +36,7 @@ export default async function SalidaPage({ params }: Props) {
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400">
         <Link href="/ordenes" className="hover:text-gray-600 transition-colors">
-          Órdenes
+          Salida de equipos
         </Link>
         <span>/</span>
         <span className="text-gray-600 font-medium">N° {orden.numero}</span>
@@ -46,10 +46,13 @@ export default async function SalidaPage({ params }: Props) {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Orden N° {orden.numero}
+            {yaEntregada ? "Editar salida" : "Registrar salida"} — N° {orden.numero}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Ingreso: {fmtDate(orden.fecha_ingreso)}
+            {yaEntregada && orden.fecha_salida
+              ? ` · Salida: ${fmtDate(orden.fecha_salida)}`
+              : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -65,7 +68,7 @@ export default async function SalidaPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Datos del ingreso (solo lectura) */}
+      {/* Datos del ingreso (solo lectura; se editan en Entrada de equipos) */}
       <div className="bg-white rounded-lg border border-gray-200 p-5">
         <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
           Datos del ingreso
@@ -94,59 +97,27 @@ export default async function SalidaPage({ params }: Props) {
         </dl>
       </div>
 
-      {/* Formulario de salida o vista solo lectura */}
-      {yaEntregada ? (
-        <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3 rounded-md">
-            Esta orden ya fue entregada. Se muestran los trabajos registrados.
-          </div>
-          {items.length > 0 && (
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              <div className="px-5 py-3 bg-gray-50 border-b border-gray-200">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Trabajos realizados
-                </h2>
-              </div>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-xs text-gray-500">
-                    <th className="px-4 py-2 text-right w-16">Cant.</th>
-                    <th className="px-4 py-2 text-left">Detalle</th>
-                    <th className="px-4 py-2 text-right w-32">Precio USD</th>
-                    <th className="px-4 py-2 text-right w-32">Importe</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, i) => (
-                    <tr key={i} className="border-b border-gray-100 last:border-0">
-                      <td className="px-4 py-2 text-right tabular-nums">{item.cantidad}</td>
-                      <td className="px-4 py-2">{item.detalle}</td>
-                      <td className="px-4 py-2 text-right tabular-nums">
-                        {item.precio != null ? `$ ${Number(item.precio).toFixed(2)}` : "—"}
-                      </td>
-                      <td className="px-4 py-2 text-right font-medium tabular-nums">
-                        {item.importe != null ? `$ ${Number(item.importe).toFixed(2)}` : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+      {yaEntregada && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3 rounded-md">
+          Estás editando una salida ya registrada. Al guardar se actualizan los
+          trabajos y la facturación, conservando la fecha de salida original.
         </div>
-      ) : (
-        <SalidaForm
-          ordenId={id}
-          tecnicoInicial={orden.tecnico}
-          tecnicos={tecnicos}
-          config={config}
-          itemsIniciales={items}
-          monedaInicial={orden.moneda}
-          aplicaIvaInicial={orden.aplica_iva}
-          mostrarCotizacionInicial={orden.mostrar_cotizacion}
-          cotizacionInicial={orden.cotizacion}
-        />
       )}
+
+      {/* Formulario de salida (registro o edición) */}
+      <SalidaForm
+        ordenId={id}
+        tecnicoInicial={orden.tecnico}
+        tecnicos={tecnicos}
+        config={config}
+        itemsIniciales={items}
+        monedaInicial={orden.moneda}
+        aplicaIvaInicial={orden.aplica_iva}
+        mostrarCotizacionInicial={orden.mostrar_cotizacion}
+        cotizacionInicial={orden.cotizacion}
+        modoEdicion={yaEntregada}
+        fechaSalidaInicial={orden.fecha_salida}
+      />
     </div>
   );
 }

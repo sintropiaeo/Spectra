@@ -32,6 +32,9 @@ type Props = {
   aplicaIvaInicial: boolean;
   mostrarCotizacionInicial: boolean;
   cotizacionInicial: number | null;
+  /** Edición de una salida ya registrada (preserva la fecha original). */
+  modoEdicion?: boolean;
+  fechaSalidaInicial?: string | null;
 };
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -77,6 +80,8 @@ export default function SalidaForm({
   aplicaIvaInicial,
   mostrarCotizacionInicial,
   cotizacionInicial,
+  modoEdicion = false,
+  fechaSalidaInicial = null,
 }: Props) {
   const [tecnico, setTecnico] = useState(tecnicoInicial ?? "");
   const [moneda, setMoneda] = useState<"USD" | "ARS">(
@@ -144,12 +149,19 @@ export default function SalidaForm({
 
     setError(null);
     startTransition(async () => {
-      const result = await confirmarSalida(ordenId, tecnico, payload, {
-        moneda,
-        aplica_iva: aplicaIva,
-        mostrar_cotizacion: mostrarCotizacion,
-        cotizacion: cotizacionNum > 0 ? cotizacionNum : null,
-      });
+      const result = await confirmarSalida(
+        ordenId,
+        tecnico,
+        payload,
+        {
+          moneda,
+          aplica_iva: aplicaIva,
+          mostrar_cotizacion: mostrarCotizacion,
+          cotizacion: cotizacionNum > 0 ? cotizacionNum : null,
+        },
+        // Al editar, preservar la fecha original; al registrar, usa hoy
+        modoEdicion ? fechaSalidaInicial : undefined
+      );
       if ("error" in result) {
         setError(result.error);
       } else {
@@ -164,21 +176,21 @@ export default function SalidaForm({
       <div className="max-w-md bg-white rounded-xl border border-green-200 p-8 text-center space-y-4">
         <div className="text-4xl text-green-500">✓</div>
         <div>
-          <p className="text-lg font-semibold text-gray-900">Equipo entregado</p>
-          <p className="text-sm text-gray-500 mt-1">La orden fue marcada como entregada.</p>
+          <p className="text-lg font-semibold text-gray-900">
+            {modoEdicion ? "Cambios guardados" : "Equipo entregado"}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            {modoEdicion
+              ? "La salida fue actualizada."
+              : "La orden fue marcada como entregada."}
+          </p>
         </div>
         <div className="flex gap-3 justify-center pt-1">
           <Link
             href="/ordenes"
             className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
           >
-            Volver a órdenes
-          </Link>
-          <Link
-            href="/ingresos"
-            className="px-4 py-2 border border-gray-300 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Nueva orden
+            Volver a salidas
           </Link>
         </div>
       </div>
@@ -414,7 +426,11 @@ export default function SalidaForm({
           disabled={isPending}
           className="px-6 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
         >
-          {isPending ? "Confirmando..." : "Confirmar salida / Entregar equipo"}
+          {isPending
+            ? "Guardando..."
+            : modoEdicion
+            ? "Guardar cambios"
+            : "Confirmar salida / Entregar equipo"}
         </button>
       </div>
     </div>
