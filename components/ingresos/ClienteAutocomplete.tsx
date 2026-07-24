@@ -8,12 +8,25 @@ type Cliente = Pick<Tables<"clientes">, "id" | "razon_social" | "localidad" | "t
 
 type Props = {
   clientes: Tables<"clientes">[];
+  initialSelected?: { id: string; razon_social: string } | null;
 };
 
-export default function ClienteAutocomplete({ clientes: initialClientes }: Props) {
+export default function ClienteAutocomplete({
+  clientes: initialClientes,
+  initialSelected = null,
+}: Props) {
   const [clientes, setClientes] = useState<Tables<"clientes">[]>(initialClientes);
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<Cliente | null>(null);
+  const [query, setQuery] = useState(initialSelected?.razon_social ?? "");
+  const [selected, setSelected] = useState<Cliente | null>(
+    initialSelected
+      ? {
+          id: initialSelected.id,
+          razon_social: initialSelected.razon_social,
+          localidad: null,
+          telefono1: null,
+        }
+      : null
+  );
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);

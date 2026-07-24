@@ -8,6 +8,8 @@ type Props = {
   numero: number;
   variant?: "primary" | "outline";
   label?: string;
+  /** Botón chico para filas de tabla (solo ícono + "Imprimir"). */
+  compact?: boolean;
 };
 
 export default function DescargaComprobanteButton({
@@ -15,6 +17,7 @@ export default function DescargaComprobanteButton({
   numero,
   variant = "primary",
   label = "Reimprimir Orden de Ingreso",
+  compact = false,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +51,20 @@ export default function DescargaComprobanteButton({
     } finally {
       setLoading(false);
     }
+  }
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        title="Imprimir comprobante de ingreso"
+        className="px-2.5 py-1.5 text-xs font-medium text-indigo-700 border border-indigo-200 rounded-md hover:bg-indigo-50 disabled:opacity-50 transition-colors"
+      >
+        {loading ? "…" : "Imprimir"}
+      </button>
+    );
   }
 
   const base =

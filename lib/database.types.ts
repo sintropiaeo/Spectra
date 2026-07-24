@@ -79,6 +79,7 @@ export type Database = {
           aplica_iva: boolean
           mostrar_cotizacion: boolean
           cotizacion: number | null
+          activo: boolean
           created_at: string
         }
         Insert: {
@@ -102,6 +103,7 @@ export type Database = {
           aplica_iva?: boolean
           mostrar_cotizacion?: boolean
           cotizacion?: number | null
+          activo?: boolean
           created_at?: string
         }
         Update: {
@@ -125,6 +127,7 @@ export type Database = {
           aplica_iva?: boolean
           mostrar_cotizacion?: boolean
           cotizacion?: number | null
+          activo?: boolean
           created_at?: string
         }
         Relationships: [
