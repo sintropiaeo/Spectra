@@ -151,6 +151,10 @@ const s = StyleSheet.create({
   totalFinalVal: { fontSize: 9, fontFamily: "Helvetica-Bold", color: C.accent, width: 75, textAlign: "right" },
   cotizacionBox: { marginTop: 4, paddingTop: 4, borderTopWidth: 0.5, borderTopColor: C.border },
 
+  // Recuadro "Detalle" (ancho completo)
+  detalleBody: { paddingHorizontal: 7, paddingVertical: 6, minHeight: 40 },
+  detalleText: { fontSize: 8, color: C.text, lineHeight: 1.45 },
+
   // Leyendas debajo del cuadro, alineadas a la derecha
   leyendas: { marginTop: 8, alignItems: "flex-end" },
   leyendaText: {
@@ -272,10 +276,16 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
           </View>
         </View>
 
-        {/* ── Trabajos realizados ── */}
+        {/* ── Detalle (texto libre del diagnóstico) ── */}
         <View style={s.section}>
-          <Text style={s.sectionTitle}>Trabajos realizados</Text>
+          <Text style={s.sectionTitle}>Detalle</Text>
+          <View style={s.detalleBody}>
+            <Text style={s.detalleText}>{orden.diagnostico || "—"}</Text>
+          </View>
+        </View>
 
+        {/* ── Tabla de trabajos (sin título de sección) ── */}
+        <View style={s.section}>
           <View style={s.tableHeader}>
             <Text style={s.thCant}>Cant.</Text>
             <Text style={s.thDetalle}>Detalle</Text>

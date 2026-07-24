@@ -35,6 +35,7 @@ type Props = {
   /** Edición de una salida ya registrada (preserva la fecha original). */
   modoEdicion?: boolean;
   fechaSalidaInicial?: string | null;
+  diagnosticoInicial?: string | null;
 };
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -82,8 +83,10 @@ export default function SalidaForm({
   cotizacionInicial,
   modoEdicion = false,
   fechaSalidaInicial = null,
+  diagnosticoInicial = null,
 }: Props) {
   const [tecnico, setTecnico] = useState(tecnicoInicial ?? "");
+  const [diagnostico, setDiagnostico] = useState(diagnosticoInicial ?? "");
   const [moneda, setMoneda] = useState<"USD" | "ARS">(
     (monedaInicial as "USD" | "ARS") ?? "USD"
   );
@@ -158,6 +161,7 @@ export default function SalidaForm({
           aplica_iva: aplicaIva,
           mostrar_cotizacion: mostrarCotizacion,
           cotizacion: cotizacionNum > 0 ? cotizacionNum : null,
+          diagnostico: diagnostico.trim() || null,
         },
         // Al editar, preservar la fecha original; al registrar, usa hoy
         modoEdicion ? fechaSalidaInicial : undefined
@@ -205,6 +209,20 @@ export default function SalidaForm({
           {error}
         </div>
       )}
+
+      {/* ── Detalle / diagnóstico (texto libre, opcional) ──── */}
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-2">
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Detalle
+        </h2>
+        <textarea
+          value={diagnostico}
+          onChange={(e) => setDiagnostico(e.target.value)}
+          rows={4}
+          placeholder="Diagnóstico / descripción libre del trabajo realizado..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
 
       {/* ── Tabla de trabajos ──────────────────────────────── */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">

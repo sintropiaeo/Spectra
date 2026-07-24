@@ -19,7 +19,7 @@ export async function getOrdenCompleto(ordenId: string) {
     .from("ordenes")
     .select(`
       id, numero, estado, marca, modelo, numero_serie, estacion,
-      deficiencia, observaciones, entrego, quien_recibio, tecnico,
+      deficiencia, observaciones, diagnostico, entrego, quien_recibio, tecnico,
       fecha_ingreso, fecha_salida,
       moneda, aplica_iva, mostrar_cotizacion, cotizacion,
       empresa_id, cliente_id,
@@ -85,6 +85,7 @@ export async function getOrdenCompleto(ordenId: string) {
       estacion: orden.estacion,
       deficiencia: orden.deficiencia,
       observaciones: orden.observaciones,
+      diagnostico: orden.diagnostico,
       entrego: orden.entrego,
       quien_recibio: orden.quien_recibio,
       tecnico: orden.tecnico,

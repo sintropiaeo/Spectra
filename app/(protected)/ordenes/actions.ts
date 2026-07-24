@@ -77,7 +77,7 @@ export async function getOrdenParaRemito(ordenId: string): Promise<RemitoPDFData
     .select(`
       id, numero, fecha_salida, tecnico,
       moneda, aplica_iva, mostrar_cotizacion, cotizacion,
-      marca, modelo, numero_serie, estacion, deficiencia, observaciones, empresa_id,
+      marca, modelo, numero_serie, estacion, deficiencia, observaciones, diagnostico, empresa_id,
       clientes:cliente_id (
         razon_social, direccion, localidad, provincia, telefono1
       ),
@@ -112,6 +112,7 @@ export async function getOrdenParaRemito(ordenId: string): Promise<RemitoPDFData
       estacion: data.estacion,
       deficiencia: data.deficiencia,
       observaciones: data.observaciones,
+      diagnostico: data.diagnostico,
     },
     cliente: data.clientes as RemitoPDFData["cliente"],
     items: (data.items_trabajo as RemitoPDFData["items"]) ?? [],
@@ -143,7 +144,7 @@ export async function getOrdenParaSalida(ordenId: string) {
     .select(`
       id, numero, estado, marca, modelo, numero_serie,
       estacion, deficiencia, empresa_id, tecnico, fecha_ingreso, fecha_salida,
-      moneda, aplica_iva, mostrar_cotizacion, cotizacion,
+      moneda, aplica_iva, mostrar_cotizacion, cotizacion, diagnostico,
       clientes:cliente_id ( razon_social, telefono1, localidad )
     `)
     .eq("id", ordenId)
@@ -187,6 +188,7 @@ export async function getOrdenParaSalida(ordenId: string) {
       aplica_iva: orden.aplica_iva ?? false,
       mostrar_cotizacion: orden.mostrar_cotizacion ?? true,
       cotizacion: orden.cotizacion ?? null,
+      diagnostico: orden.diagnostico ?? null,
       cliente: orden.clientes as {
         razon_social: string;
         telefono1: string | null;
@@ -209,6 +211,7 @@ export async function confirmarSalida(
     aplica_iva: boolean;
     mostrar_cotizacion: boolean;
     cotizacion: number | null;
+    diagnostico: string | null;
   },
   // Al EDITAR una salida ya registrada, preservar la fecha original.
   // Al registrar por primera vez, usar hoy.
@@ -235,6 +238,7 @@ export async function confirmarSalida(
       aplica_iva:         opciones.aplica_iva,
       mostrar_cotizacion: opciones.mostrar_cotizacion,
       cotizacion:         opciones.cotizacion,
+      diagnostico:        opciones.diagnostico,
     })
     .eq("id", ordenId);
 

@@ -14,6 +14,7 @@ export type RemitoPDFData = {
     estacion: string | null;
     deficiencia: string | null;
     observaciones: string | null;
+    diagnostico: string | null;
   };
   cliente: {
     razon_social: string;

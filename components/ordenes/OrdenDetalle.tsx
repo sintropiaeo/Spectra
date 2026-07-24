@@ -206,6 +206,13 @@ export default function OrdenDetalle({
         </dl>
       </Section>
 
+      {/* Detalle / diagnóstico (si tiene) */}
+      {orden.diagnostico && (
+        <Section title="Detalle">
+          <p className="text-sm text-gray-800 whitespace-pre-wrap">{orden.diagnostico}</p>
+        </Section>
+      )}
+
       {/* Trabajos (solo si entregada) */}
       {isEntregada && items.length > 0 && (
         <Section title="Trabajos realizados">

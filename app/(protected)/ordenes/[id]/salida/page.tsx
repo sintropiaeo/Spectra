@@ -117,6 +117,7 @@ export default async function SalidaPage({ params }: Props) {
         cotizacionInicial={orden.cotizacion}
         modoEdicion={yaEntregada}
         fechaSalidaInicial={orden.fecha_salida}
+        diagnosticoInicial={orden.diagnostico}
       />
     </div>
   );

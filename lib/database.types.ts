@@ -79,6 +79,7 @@ export type Database = {
           aplica_iva: boolean
           mostrar_cotizacion: boolean
           cotizacion: number | null
+          diagnostico: string | null
           activo: boolean
           created_at: string
         }
@@ -103,6 +104,7 @@ export type Database = {
           aplica_iva?: boolean
           mostrar_cotizacion?: boolean
           cotizacion?: number | null
+          diagnostico?: string | null
           activo?: boolean
           created_at?: string
         }
@@ -127,6 +129,7 @@ export type Database = {
           aplica_iva?: boolean
           mostrar_cotizacion?: boolean
           cotizacion?: number | null
+          diagnostico?: string | null
           activo?: boolean
           created_at?: string
         }
