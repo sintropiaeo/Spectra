@@ -44,13 +44,13 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingBottom: 6,
+    paddingBottom: 10,
   },
   empresa: { flex: 1 },
-  empresaLogo: { width: 132, height: 28, marginBottom: 3, objectFit: "contain" },
-  empresaSub: { fontSize: 7, color: C.muted, marginTop: 2 },
+  empresaLogo: { width: 152, height: 32, marginBottom: 3, objectFit: "contain" },
+  empresaSub: { fontSize: 7, color: C.muted, marginTop: 2.5 },
 
-  // Caja "X" (comprobante no fiscal)
+  // Caja "X" (comprobante no fiscal) — centrada en la hoja
   xWrap: { alignItems: "center", paddingHorizontal: 10 },
   xBox: {
     width: 42,
@@ -61,11 +61,11 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   xLetter: { fontSize: 26, fontFamily: "Helvetica-Bold", color: C.text },
-  xCod: { fontSize: 5.5, color: C.muted, marginTop: 2, letterSpacing: 0.5 },
 
-  ordenBox: { alignItems: "flex-end" },
+  // flex:1 en ambos lados → la caja X queda centrada en la página
+  ordenBox: { flex: 1, alignItems: "flex-end" },
   ordenTitulo: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.accent },
-  ordenSub: { fontSize: 7, color: C.muted, marginTop: 2 },
+  ordenSub: { fontSize: 7, color: C.muted, marginTop: 2.5 },
 
   // Banda "no válido como factura"
   noValidaBand: {
@@ -73,8 +73,9 @@ const s = StyleSheet.create({
     borderTopColor: C.accent,
     borderBottomWidth: 0.5,
     borderBottomColor: C.border,
-    paddingVertical: 4,
-    marginBottom: 6,
+    paddingVertical: 6,
+    marginTop: 4,
+    marginBottom: 20,
     alignItems: "center",
   },
   noValidaText: {
@@ -85,7 +86,7 @@ const s = StyleSheet.create({
   },
 
   // Dos columnas
-  row2: { flexDirection: "row", gap: 6, marginBottom: 6 },
+  row2: { flexDirection: "row", gap: 6, marginBottom: 8 },
   col: { flex: 1, borderWidth: 0.5, borderColor: C.border, borderRadius: 2, overflow: "hidden" },
 
   // Sección
@@ -94,17 +95,17 @@ const s = StyleSheet.create({
     borderColor: C.border,
     borderRadius: 2,
     overflow: "hidden",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 6.5,
+    fontSize: 8,
     fontFamily: "Helvetica-Bold",
     color: C.muted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     backgroundColor: C.bg,
     paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderBottomWidth: 0.5,
     borderBottomColor: C.border,
   },
@@ -150,22 +151,15 @@ const s = StyleSheet.create({
   totalFinalVal: { fontSize: 9, fontFamily: "Helvetica-Bold", color: C.accent, width: 75, textAlign: "right" },
   cotizacionBox: { marginTop: 4, paddingTop: 4, borderTopWidth: 0.5, borderTopColor: C.border },
 
-  // Leyendas al pie de la tabla
-  leyendas: { marginTop: 6, paddingHorizontal: 7 },
-  leyendaText: { fontSize: 7.5, color: C.text, fontFamily: "Helvetica-Bold", marginBottom: 1 },
-
-  // Footer
-  footer: {
-    marginTop: 12,
-    borderTopWidth: 0.5,
-    borderTopColor: C.border,
-    paddingTop: 5,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
+  // Leyendas debajo del cuadro, alineadas a la derecha
+  leyendas: { marginTop: 8, alignItems: "flex-end" },
+  leyendaText: {
+    fontSize: 7.5,
+    color: C.text,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 1,
+    textAlign: "right",
   },
-  tecnicoLabel: { fontSize: 7, color: C.muted },
-  tecnicoVal: { fontSize: 8, fontFamily: "Helvetica-Bold", color: C.text },
 });
 
 // ── KV helper ─────────────────────────────────────────────────
@@ -220,7 +214,6 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
             <View style={s.xBox}>
               <Text style={s.xLetter}>X</Text>
             </View>
-            <Text style={s.xCod}>COMPROBANTE X</Text>
           </View>
 
           <View style={s.ordenBox}>
@@ -331,23 +324,12 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
               </View>
             )}
           </View>
-
-          {/* Dos leyendas al pie de la tabla */}
-          <View style={s.leyendas}>
-            <Text style={s.leyendaText}>{leyendaIva}</Text>
-            <Text style={s.leyendaText}>{leyendaMoneda}</Text>
-          </View>
         </View>
 
-        {/* ── Pie: técnico ── */}
-        <View style={s.footer}>
-          <Text style={s.tecnicoLabel}>Comprobante interno de entrega y cobro.</Text>
-          {orden.tecnico ? (
-            <View style={{ alignItems: "flex-end" }}>
-              <Text style={s.tecnicoLabel}>Técnico</Text>
-              <Text style={s.tecnicoVal}>{orden.tecnico}</Text>
-            </View>
-          ) : null}
+        {/* Dos leyendas debajo del cuadro, alineadas a la derecha */}
+        <View style={s.leyendas}>
+          <Text style={s.leyendaText}>{leyendaIva}</Text>
+          <Text style={s.leyendaText}>{leyendaMoneda}</Text>
         </View>
       </Page>
     </Document>
