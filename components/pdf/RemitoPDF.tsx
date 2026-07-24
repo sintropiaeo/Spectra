@@ -1,5 +1,6 @@
-import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 import { RemitoPDFData } from "@/lib/remito-types";
+import { LOGO_COSTARELLI } from "@/lib/logoCostarelli";
 
 // ── Helpers ──────────────────────────────────────────────────
 function fmtDate(d: string | null) {
@@ -49,6 +50,7 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   empresaNombre: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.accent },
+  empresaLogo: { width: 132, height: 28, marginBottom: 3, objectFit: "contain" },
   empresaSub: { fontSize: 7, color: C.muted, marginTop: 2 },
   remitoBox: { alignItems: "flex-end" },
   remitoTitulo: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.accent },
@@ -189,7 +191,7 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
         {/* ── Encabezado ── */}
         <View style={s.header}>
           <View>
-            <Text style={s.empresaNombre}>{config?.nombre_empresa ?? "SPECTRA"}</Text>
+            <Image src={LOGO_COSTARELLI} style={s.empresaLogo} />
             {config?.direccion ? <Text style={s.empresaSub}>{config.direccion}</Text> : null}
             {config?.cuit ? <Text style={s.empresaSub}>CUIT: {config.cuit}</Text> : null}
           </View>

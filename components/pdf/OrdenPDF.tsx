@@ -3,9 +3,11 @@ import {
   Page,
   View,
   Text,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer";
 import { OrdenPDFData } from "@/lib/pdf-types";
+import { LOGO_COSTARELLI } from "@/lib/logoCostarelli";
 
 // ── Helpers ──────────────────────────────────────────────────
 function fmtDate(d: string) {
@@ -50,9 +52,12 @@ const s = StyleSheet.create({
     paddingVertical: 22,
   },
 
-  // ── Copia ──
-  copy: {
-    flex: 1,
+  // ── Logo ──
+  logo: {
+    width: 132,
+    height: 28,
+    marginBottom: 3,
+    objectFit: "contain",
   },
 
   // ── Encabezado ──
@@ -67,11 +72,6 @@ const s = StyleSheet.create({
   },
   empresa: {
     flex: 1,
-  },
-  empresaNombre: {
-    fontSize: 13,
-    fontFamily: "Helvetica-Bold",
-    color: C.accent,
   },
   empresaSub: {
     fontSize: 7,
@@ -158,18 +158,7 @@ const s = StyleSheet.create({
     marginLeft: 2,
   },
 
-  // ── Separador de corte ──
-  separator: {
-    paddingVertical: 5,
-    alignItems: "center",
-  },
-  separatorLine: {
-    fontSize: 7,
-    color: "#9ca3af",
-    letterSpacing: 1.5,
-  },
-
-  // ── Legal ──
+  // ── Aviso legal ──
   legal: {
     borderTopWidth: 0.5,
     borderTopColor: C.border,
@@ -180,6 +169,58 @@ const s = StyleSheet.create({
     fontSize: 6.5,
     color: C.light,
     lineHeight: 1.4,
+  },
+
+  // ── Línea de corte (pegada al aviso) ──
+  separator: {
+    alignItems: "center",
+    marginTop: 3,
+    marginBottom: 5,
+  },
+  separatorLine: {
+    fontSize: 7,
+    color: "#9ca3af",
+    letterSpacing: 1.5,
+  },
+
+  // ── Parte inferior (taller) ──
+  bottom: {
+    flex: 1,
+  },
+  bottomHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    borderBottomWidth: 0.75,
+    borderBottomColor: C.text,
+    paddingBottom: 4,
+    marginBottom: 6,
+  },
+  bottomNumero: {
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    color: C.text,
+  },
+  bottomFecha: {
+    fontSize: 8,
+    color: C.muted,
+  },
+
+  // ── Firma ──
+  firmaWrap: {
+    marginTop: 30,
+  },
+  firmaLine: {
+    borderTopWidth: 0.75,
+    borderTopColor: C.text,
+    width: 240,
+  },
+  firmaLegend: {
+    fontSize: 7,
+    color: C.muted,
+    marginTop: 3,
+    lineHeight: 1.35,
+    maxWidth: 380,
   },
 });
 
@@ -193,27 +234,90 @@ function KV({ k, v }: { k: string; v?: string | null }) {
   );
 }
 
-// ── Una copia del comprobante ─────────────────────────────────
-function Copia({
-  data,
-  titulo,
-}: {
-  data: OrdenPDFData;
-  titulo: string;
-}) {
-  const { orden, cliente, accesorios, config } = data;
+// ── Bloques reutilizados (mismos datos arriba y abajo) ───────
+function ClienteEquipo({ data }: { data: OrdenPDFData }) {
+  const { orden, cliente } = data;
+  return (
+    <View style={s.row2}>
+      <View style={s.col}>
+        <Text style={s.sectionTitle}>Cliente</Text>
+        <View style={s.sectionBody}>
+          <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: C.text, marginBottom: 5 }}>
+            {cliente.razon_social}
+          </Text>
+          {cliente.direccion ? <KV k="Dirección" v={cliente.direccion} /> : null}
+          <KV
+            k="Localidad"
+            v={[cliente.localidad, cliente.provincia, cliente.codigo_postal]
+              .filter(Boolean)
+              .join(", ")}
+          />
+          <KV k="Teléfono" v={cliente.telefono1} />
+          <KV k="Contacto" v={cliente.contacto} />
+        </View>
+      </View>
+      <View style={s.col}>
+        <Text style={s.sectionTitle}>Equipo</Text>
+        <View style={s.sectionBody}>
+          <KV k="Marca" v={orden.marca} />
+          <KV k="Modelo" v={orden.modelo} />
+          <KV k="N° de serie" v={orden.numero_serie} />
+          <KV k="Estación" v={orden.estacion} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function Accesorios({ data }: { data: OrdenPDFData }) {
+  return (
+    <View style={s.section}>
+      <Text style={s.sectionTitle}>Accesorios entregados</Text>
+      <View style={s.sectionBody}>
+        <Text style={{ fontSize: 8, color: C.text }}>
+          {accesoriosList(data.accesorios)}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function ProblemaObs({ data }: { data: OrdenPDFData }) {
+  const { orden } = data;
+  return (
+    <View style={s.row2}>
+      <View style={s.col}>
+        <Text style={s.sectionTitle}>Problema reportado</Text>
+        <View style={[s.sectionBody, { minHeight: 32 }]}>
+          <Text style={{ fontSize: 8, color: C.text, lineHeight: 1.4 }}>
+            {orden.deficiencia || "—"}
+          </Text>
+        </View>
+      </View>
+      <View style={s.col}>
+        <Text style={s.sectionTitle}>Observaciones</Text>
+        <View style={[s.sectionBody, { minHeight: 32 }]}>
+          <Text style={{ fontSize: 8, color: C.text, lineHeight: 1.4 }}>
+            {orden.observaciones || "—"}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ── Parte superior (se la lleva el cliente) — contenido actual ─
+function CopiaSuperior({ data }: { data: OrdenPDFData }) {
+  const { orden, config } = data;
 
   return (
-    <View style={s.copy}>
-      {/* Copia label */}
-      <Text style={s.copiaLabel}>{titulo}</Text>
+    <View>
+      <Text style={s.copiaLabel}>COPIA CLIENTE</Text>
 
-      {/* Encabezado */}
+      {/* Encabezado con logo */}
       <View style={s.header}>
         <View style={s.empresa}>
-          <Text style={s.empresaNombre}>
-            {config?.nombre_empresa ?? "SPECTRA"}
-          </Text>
+          <Image src={LOGO_COSTARELLI} style={s.logo} />
           {config?.direccion ? (
             <Text style={s.empresaSub}>{config.direccion}</Text>
           ) : null}
@@ -232,70 +336,9 @@ function Copia({
         </View>
       </View>
 
-      {/* Cliente + Equipo lado a lado */}
-      <View style={s.row2}>
-        {/* Cliente */}
-        <View style={s.col}>
-          <Text style={s.sectionTitle}>Cliente</Text>
-          <View style={s.sectionBody}>
-            <Text style={{ fontSize: 9, fontFamily: "Helvetica-Bold", color: C.text, marginBottom: 5 }}>
-              {cliente.razon_social}
-            </Text>
-            {cliente.direccion ? (
-              <KV k="Dirección" v={cliente.direccion} />
-            ) : null}
-            <KV
-              k="Localidad"
-              v={[cliente.localidad, cliente.provincia, cliente.codigo_postal]
-                .filter(Boolean)
-                .join(", ")}
-            />
-            <KV k="Teléfono" v={cliente.telefono1} />
-            <KV k="Contacto" v={cliente.contacto} />
-          </View>
-        </View>
-
-        {/* Equipo */}
-        <View style={s.col}>
-          <Text style={s.sectionTitle}>Equipo</Text>
-          <View style={s.sectionBody}>
-            <KV k="Marca" v={orden.marca} />
-            <KV k="Modelo" v={orden.modelo} />
-            <KV k="N° de serie" v={orden.numero_serie} />
-            <KV k="Estación" v={orden.estacion} />
-          </View>
-        </View>
-      </View>
-
-      {/* Accesorios */}
-      <View style={s.section}>
-        <Text style={s.sectionTitle}>Accesorios entregados</Text>
-        <View style={s.sectionBody}>
-          <Text style={{ fontSize: 8, color: C.text }}>
-            {accesoriosList(accesorios)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Deficiencia + Observaciones */}
-      <View style={s.row2}>
-        <View style={s.col}>
-          <Text style={s.sectionTitle}>Problema reportado</Text>
-          <View style={[s.sectionBody, { minHeight: 32 }]}>
-            <Text style={{ fontSize: 8, color: C.text, lineHeight: 1.4 }}>
-              {orden.deficiencia || "—"}
-            </Text>
-          </View>
-        </View>
-        <View style={s.col}>
-          <Text style={s.sectionTitle}>Observaciones</Text>
-          <View style={[s.sectionBody, { minHeight: 32 }]}>
-            <Text style={{ fontSize: 8, color: C.text, lineHeight: 1.4 }}>
-              {orden.observaciones || "—"}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <ClienteEquipo data={data} />
+      <Accesorios data={data} />
+      <ProblemaObs data={data} />
 
       {/* Recepción */}
       <View style={[s.section, { marginBottom: 4 }]}>
@@ -310,17 +353,48 @@ function Copia({
         </View>
       </View>
 
-      {/* Cláusula legal */}
+      {/* Aviso legal */}
       <View style={s.legal}>
         <Text style={s.legalText}>
           AVISO: Los equipos que no sean retirados dentro de los 60 (sesenta)
           días corridos desde la fecha de notificación de presupuesto o
           finalización del servicio pasarán a ser considerados abandonados, de
           conformidad con la normativa vigente. La empresa no se responsabiliza
-          por deterioro, extravío o daños ocurridos pasado dicho plazo.{" "}
-          {/* ← Reemplazá este texto por la cláusula legal exacta */}
+          por deterioro, extravío o daños ocurridos pasado dicho plazo.
         </Text>
       </View>
+    </View>
+  );
+}
+
+// ── Parte inferior (queda en el taller) — sin membrete ────────
+function CopiaInferior({ data }: { data: OrdenPDFData }) {
+  const { orden } = data;
+
+  return (
+    <View style={s.bottom}>
+      {/* Header sin logo: N° de orden + fecha de ingreso */}
+      <View style={s.bottomHeader}>
+        <Text style={s.bottomNumero}>ORDEN N° {orden.numero}</Text>
+        <Text style={s.bottomFecha}>
+          Fecha de ingreso: {fmtDate(orden.fecha_ingreso)}
+        </Text>
+      </View>
+
+      <ClienteEquipo data={data} />
+      <Accesorios data={data} />
+      <ProblemaObs data={data} />
+
+      {/* Firma del cliente + leyenda */}
+      <View style={s.firmaWrap}>
+        <View style={s.firmaLine} />
+        <Text style={s.firmaLegend}>
+          Firmo conforme la recepción del comprobante adjunto que deberá ser
+          presentado indefectiblemente para el retiro del equipo
+        </Text>
+      </View>
+
+      {/* El resto de la hoja queda en blanco para el informe técnico a mano */}
     </View>
   );
 }
@@ -333,7 +407,7 @@ export function OrdenPDF({ data }: { data: OrdenPDFData }) {
       author={data.config?.nombre_empresa ?? "SPECTRA"}
     >
       <Page size="A4" style={s.page}>
-        <Copia data={data} titulo="COPIA CLIENTE" />
+        <CopiaSuperior data={data} />
 
         <View style={s.separator}>
           <Text style={s.separatorLine}>
@@ -341,7 +415,7 @@ export function OrdenPDF({ data }: { data: OrdenPDFData }) {
           </Text>
         </View>
 
-        <Copia data={data} titulo="COPIA EMPRESA" />
+        <CopiaInferior data={data} />
       </Page>
     </Document>
   );
