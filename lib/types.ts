@@ -6,13 +6,17 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Entradas Equipos", href: "/ingresos" },
-  { label: "Salidas Equipos", href: "/ordenes" },
+  { label: "Equipos", href: "/equipos" },
   { label: "Clientes", href: "/clientes" },
   { label: "Remitos", href: "/remitos" },
-  // Alertas OCULTO temporalmente (solo UI). La ruta /alertas y su lógica
-  // siguen intactas; descomentar esta línea para reactivar el botón.
-  // { label: "Alertas", href: "/alertas" },
-  { label: "Consultas", href: "/consultas" },
   { label: "Configuración", href: "/configuracion", roles: ["admin", "superadmin"] },
 ];
+
+// Ítems OCULTOS de la navegación (mismo criterio que Alertas: rutas y
+// componentes intactos, solo salen del menú). "Entradas Equipos",
+// "Salidas Equipos" y "Consultas" quedaron fusionados en "Equipos".
+// Para reactivar alguno, volver a agregarlo al array de arriba:
+//   { label: "Entradas Equipos", href: "/ingresos" },
+//   { label: "Salidas Equipos", href: "/ordenes" },
+//   { label: "Consultas", href: "/consultas" },
+//   { label: "Alertas", href: "/alertas" },

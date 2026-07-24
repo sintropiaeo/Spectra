@@ -23,6 +23,8 @@ type Props = {
   totalPages: number;
   total: number;
   searchParams: SearchParams;
+  /** Ruta base para URLs de orden/paginación y links de fila (default /consultas). */
+  basePath?: string;
 };
 
 function fmtDate(d: string | null) {
@@ -31,21 +33,21 @@ function fmtDate(d: string | null) {
   return `${day}/${m}/${y}`;
 }
 
-function buildUrl(params: SearchParams, overrides: SearchParams = {}): string {
+function buildUrl(basePath: string, params: SearchParams, overrides: SearchParams = {}): string {
   const p = new URLSearchParams();
   const merged = { ...params, ...overrides };
   Object.entries(merged).forEach(([k, v]) => { if (v) p.set(k, v); });
-  return `/consultas?${p.toString()}`;
+  return `${basePath}?${p.toString()}`;
 }
 
 function EstadoBadge({ estado }: { estado: string }) {
-  const cls =
-    estado === "entregado"
-      ? "bg-green-100 text-green-700"
-      : "bg-amber-100 text-amber-700";
+  const entregado = estado === "entregado";
+  const cls = entregado
+    ? "bg-green-100 text-green-700"
+    : "bg-amber-100 text-amber-700";
   return (
     <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${cls}`}>
-      {estado}
+      {entregado ? "Entregado" : "Pendiente"}
     </span>
   );
 }
@@ -56,16 +58,18 @@ function SortTh({
   sort,
   dir,
   params,
+  basePath,
 }: {
   label: string;
   col: string;
   sort: string;
   dir: string;
   params: SearchParams;
+  basePath: string;
 }) {
   const active = sort === col;
   const newDir = active && dir === "desc" ? "asc" : "desc";
-  const href = buildUrl(params, { sort: col, dir: newDir, page: "1" });
+  const href = buildUrl(basePath, params, { sort: col, dir: newDir, page: "1" });
   return (
     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
       <Link href={href} className="flex items-center gap-1 hover:text-gray-800 transition-colors">
@@ -86,6 +90,7 @@ export default function TablaOrdenes({
   totalPages,
   total,
   searchParams,
+  basePath = "/consultas",
 }: Props) {
   if (ordenes.length === 0) {
     return (
@@ -101,13 +106,13 @@ export default function TablaOrdenes({
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <SortTh label="N°" col="numero" sort={sort} dir={dir} params={searchParams} />
+              <SortTh label="N°" col="numero" sort={sort} dir={dir} params={searchParams} basePath={basePath} />
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Equipo</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">N° serie</th>
-              <SortTh label="Estado" col="estado" sort={sort} dir={dir} params={searchParams} />
-              <SortTh label="Ingreso" col="fecha_ingreso" sort={sort} dir={dir} params={searchParams} />
-              <SortTh label="Salida" col="fecha_salida" sort={sort} dir={dir} params={searchParams} />
+              <SortTh label="Estado" col="estado" sort={sort} dir={dir} params={searchParams} basePath={basePath} />
+              <SortTh label="Ingreso" col="fecha_ingreso" sort={sort} dir={dir} params={searchParams} basePath={basePath} />
+              <SortTh label="Salida" col="fecha_salida" sort={sort} dir={dir} params={searchParams} basePath={basePath} />
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Técnico</th>
             </tr>
           </thead>
@@ -118,42 +123,42 @@ export default function TablaOrdenes({
                 className="hover:bg-indigo-50 transition-colors cursor-pointer"
               >
                 <td className="px-4 py-3">
-                  <Link href={`/consultas/${o.id}`} className="font-bold text-indigo-600 hover:underline">
+                  <Link href={`${basePath}/${o.id}`} className="font-bold text-indigo-600 hover:underline">
                     #{o.numero}
                   </Link>
                 </td>
                 <td className="px-4 py-3 font-medium text-gray-900">
-                  <Link href={`/consultas/${o.id}`} className="block hover:text-indigo-600">
+                  <Link href={`${basePath}/${o.id}`} className="block hover:text-indigo-600">
                     {o.clientes?.razon_social ?? "—"}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-500">
-                  <Link href={`/consultas/${o.id}`} className="block">
+                  <Link href={`${basePath}/${o.id}`} className="block">
                     {[o.marca, o.modelo].filter(Boolean).join(" ") || "—"}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-500 font-mono text-xs">
-                  <Link href={`/consultas/${o.id}`} className="block">
+                  <Link href={`${basePath}/${o.id}`} className="block">
                     {o.numero_serie ?? "—"}
                   </Link>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/consultas/${o.id}`} className="block">
+                  <Link href={`${basePath}/${o.id}`} className="block">
                     <EstadoBadge estado={o.estado} />
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-500 tabular-nums">
-                  <Link href={`/consultas/${o.id}`} className="block">
+                  <Link href={`${basePath}/${o.id}`} className="block">
                     {fmtDate(o.fecha_ingreso)}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-500 tabular-nums">
-                  <Link href={`/consultas/${o.id}`} className="block">
+                  <Link href={`${basePath}/${o.id}`} className="block">
                     {fmtDate(o.fecha_salida)}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-gray-500">
-                  <Link href={`/consultas/${o.id}`} className="block">
+                  <Link href={`${basePath}/${o.id}`} className="block">
                     {o.tecnico ?? "—"}
                   </Link>
                 </td>
@@ -172,7 +177,7 @@ export default function TablaOrdenes({
         <div className="flex gap-1">
           {page > 1 && (
             <Link
-              href={buildUrl(searchParams, { page: String(page - 1) })}
+              href={buildUrl(basePath, searchParams, { page: String(page - 1) })}
               className="px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
               ← Anterior
@@ -180,7 +185,7 @@ export default function TablaOrdenes({
           )}
           {page < totalPages && (
             <Link
-              href={buildUrl(searchParams, { page: String(page + 1) })}
+              href={buildUrl(basePath, searchParams, { page: String(page + 1) })}
               className="px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
               Siguiente →

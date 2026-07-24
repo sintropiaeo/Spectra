@@ -16,7 +16,7 @@ export default function DescargaRemitoButton({
   ordenId,
   numero,
   variant = "primary",
-  label = "Generar Remito de Salida",
+  label = "Generar Orden de Salida",
   compact = false,
 }: Props) {
   const [loading, setLoading] = useState(false);

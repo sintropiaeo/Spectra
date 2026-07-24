@@ -12,9 +12,15 @@ type Props = {
     desde?: string;
     hasta?: string;
   };
+  /** Ruta base a la que empuja la búsqueda (default /consultas). */
+  basePath?: string;
 };
 
-export default function FiltrosConsultas({ tecnicos, defaults }: Props) {
+export default function FiltrosConsultas({
+  tecnicos,
+  defaults,
+  basePath = "/consultas",
+}: Props) {
   const [q, setQ] = useState(defaults.q ?? "");
   const [estado, setEstado] = useState(defaults.estado ?? "");
   const [tecnico, setTecnico] = useState(defaults.tecnico ?? "");
@@ -32,12 +38,12 @@ export default function FiltrosConsultas({ tecnicos, defaults }: Props) {
 
   function handleBuscar(e: React.FormEvent) {
     e.preventDefault();
-    startTransition(() => router.push(`/consultas?${buildParams({ page: "1" })}`));
+    startTransition(() => router.push(`${basePath}?${buildParams({ page: "1" })}`));
   }
 
   function handleLimpiar() {
     setQ(""); setEstado(""); setTecnico(""); setDesde(""); setHasta("");
-    startTransition(() => router.push("/consultas"));
+    startTransition(() => router.push(basePath));
   }
 
   const inputCls =
@@ -75,7 +81,7 @@ export default function FiltrosConsultas({ tecnicos, defaults }: Props) {
             className={inputCls}
           >
             <option value="">Todas</option>
-            <option value="ingresado">Ingresado</option>
+            <option value="ingresado">Pendiente</option>
             <option value="entregado">Entregado</option>
           </select>
         </div>
