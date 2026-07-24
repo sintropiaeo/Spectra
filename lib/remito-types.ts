@@ -22,6 +22,8 @@ export type RemitoPDFData = {
     localidad: string | null;
     provincia: string | null;
     telefono1: string | null;
+    cuit: string | null;
+    condicion_iva: string | null;
   };
   items: {
     cantidad: number | null;

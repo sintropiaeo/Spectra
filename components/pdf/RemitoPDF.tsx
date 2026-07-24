@@ -243,6 +243,8 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
               {cliente.direccion ? <KV k="Dirección" v={cliente.direccion} /> : null}
               <KV k="Localidad" v={[cliente.localidad, cliente.provincia].filter(Boolean).join(", ")} />
               <KV k="Teléfono" v={cliente.telefono1} />
+              <KV k="CUIT" v={cliente.cuit} />
+              <KV k="Cond. IVA" v={cliente.condicion_iva} />
             </View>
           </View>
           <View style={s.col}>

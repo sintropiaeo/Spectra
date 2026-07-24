@@ -54,8 +54,10 @@ export async function createCliente(
       codigo_postal: str(formData, "codigo_postal"),
       telefono1:     str(formData, "telefono1"),
       telefono2:     str(formData, "telefono2"),
-      telefono3:     str(formData, "telefono3"),
       contacto:      str(formData, "contacto"),
+      cuit:          str(formData, "cuit"),
+      email:         str(formData, "email"),
+      condicion_iva: str(formData, "condicion_iva"),
     });
 
     if (error) return { error: error.message };
@@ -80,6 +82,8 @@ export async function updateCliente(
   const { error } = await supabase
     .from("clientes")
     .update({
+      // telefono3 NO se incluye a propósito: el campo se ocultó del form,
+      // así no se pisa el valor que puedan tener clientes viejos.
       razon_social,
       direccion:     str(formData, "direccion"),
       provincia:     str(formData, "provincia"),
@@ -87,8 +91,10 @@ export async function updateCliente(
       codigo_postal: str(formData, "codigo_postal"),
       telefono1:     str(formData, "telefono1"),
       telefono2:     str(formData, "telefono2"),
-      telefono3:     str(formData, "telefono3"),
       contacto:      str(formData, "contacto"),
+      cuit:          str(formData, "cuit"),
+      email:         str(formData, "email"),
+      condicion_iva: str(formData, "condicion_iva"),
     })
     .eq("id", id);
 

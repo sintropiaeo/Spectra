@@ -16,6 +16,7 @@ import {
   RemitoState,
 } from "@/app/(protected)/remitos/actions";
 import { estimateItemsCapacity, RemitoItem } from "@/lib/remitoPrintConfig";
+import { CONDICIONES_IVA } from "@/lib/constants";
 import NuevoClienteModal from "@/components/ingresos/NuevoClienteModal";
 import ImprimirRemitoButton from "./ImprimirRemitoButton";
 
@@ -24,13 +25,6 @@ type Props = {
   remito?: Tables<"remitos_manuales">;
 };
 
-const CONDICIONES_IVA = [
-  "Responsable Inscripto",
-  "Monotributo",
-  "Exento",
-  "Consumidor Final",
-  "No Responsable",
-];
 
 const hoy = () => new Date().toISOString().slice(0, 10);
 

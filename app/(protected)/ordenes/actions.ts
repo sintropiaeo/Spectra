@@ -79,7 +79,7 @@ export async function getOrdenParaRemito(ordenId: string): Promise<RemitoPDFData
       moneda, aplica_iva, mostrar_cotizacion, cotizacion,
       marca, modelo, numero_serie, estacion, deficiencia, observaciones, diagnostico, empresa_id,
       clientes:cliente_id (
-        razon_social, direccion, localidad, provincia, telefono1
+        razon_social, direccion, localidad, provincia, telefono1, cuit, condicion_iva
       ),
       items_trabajo (
         cantidad, detalle, precio, importe

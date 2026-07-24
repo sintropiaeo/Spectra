@@ -22,6 +22,9 @@ export type Database = {
           telefono2: string | null
           telefono3: string | null
           contacto: string | null
+          cuit: string | null
+          email: string | null
+          condicion_iva: string | null
           activo: boolean
           created_at: string
         }
@@ -37,6 +40,9 @@ export type Database = {
           telefono2?: string | null
           telefono3?: string | null
           contacto?: string | null
+          cuit?: string | null
+          email?: string | null
+          condicion_iva?: string | null
           activo?: boolean
           created_at?: string
         }
@@ -52,6 +58,9 @@ export type Database = {
           telefono2?: string | null
           telefono3?: string | null
           contacto?: string | null
+          cuit?: string | null
+          email?: string | null
+          condicion_iva?: string | null
           activo?: boolean
           created_at?: string
         }

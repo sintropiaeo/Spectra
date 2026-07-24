@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { Tables } from "@/lib/database.types";
+import { CONDICIONES_IVA } from "@/lib/constants";
 
 type State = { error: string } | null;
 type FormAction = (prevState: unknown, formData: FormData) => Promise<State>;
@@ -70,10 +71,32 @@ export default function ClienteForm({ cliente, action }: Props) {
         <Field label="Contacto" name="contacto" defaultValue={cliente?.contacto} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="Teléfono 1" name="telefono1" defaultValue={cliente?.telefono1} />
         <Field label="Teléfono 2" name="telefono2" defaultValue={cliente?.telefono2} />
-        <Field label="Teléfono 3" name="telefono3" defaultValue={cliente?.telefono3} />
+      </div>
+
+      {/* ── Datos fiscales ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="CUIT" name="cuit" defaultValue={cliente?.cuit} />
+        <Field label="E-mail" name="email" defaultValue={cliente?.email} />
+      </div>
+
+      <div>
+        <label htmlFor="condicion_iva" className="block text-sm font-medium text-gray-700 mb-1">
+          Condición frente al IVA
+        </label>
+        <select
+          id="condicion_iva"
+          name="condicion_iva"
+          defaultValue={cliente?.condicion_iva ?? ""}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">— Seleccionar —</option>
+          {CONDICIONES_IVA.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-center gap-3 pt-2">
