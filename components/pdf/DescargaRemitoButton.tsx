@@ -6,7 +6,7 @@ import { getOrdenParaRemito } from "@/app/(protected)/ordenes/actions";
 type Props = {
   ordenId: string;
   numero: number;
-  variant?: "primary" | "outline";
+  variant?: "primary" | "outline" | "blue";
   label?: string;
   /** Botón chico para filas de tabla. */
   compact?: boolean;
@@ -68,6 +68,8 @@ export default function DescargaRemitoButton({
   const cls =
     variant === "primary"
       ? `${base} bg-green-600 text-white hover:bg-green-700`
+      : variant === "blue"
+      ? `${base} bg-indigo-600 text-white hover:bg-indigo-700`
       : `${base} border border-gray-300 text-gray-700 hover:bg-gray-50`;
 
   return (

@@ -2,6 +2,10 @@ import Link from "next/link";
 import { getOrdenCompleto } from "@/app/(protected)/consultas/actions";
 import DescargaComprobanteButton from "@/components/pdf/DescargaComprobanteButton";
 import DescargaRemitoButton from "@/components/pdf/DescargaRemitoButton";
+import EliminarOrdenButton from "@/components/ordenes/EliminarOrdenButton";
+
+const btnEditar =
+  "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-amber-400 text-amber-950 hover:bg-amber-500 transition-colors";
 
 type Datos = NonNullable<Awaited<ReturnType<typeof getOrdenCompleto>>>;
 
@@ -96,15 +100,44 @@ export default function OrdenDetalle({
             {orden.tecnico && ` · Técnico: ${orden.tecnico}`}
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <DescargaComprobanteButton
-            ordenId={orden.id}
-            numero={orden.numero}
-            variant="outline"
-            label="Reimprimir Orden de Ingreso"
-          />
-          {isEntregada && (
-            <DescargaRemitoButton ordenId={orden.id} numero={orden.numero} />
+        <div className="flex gap-2 flex-wrap items-start justify-end">
+          {isEntregada ? (
+            <>
+              {/* Reimprimir orden de salida (acción principal, azul) */}
+              <DescargaRemitoButton
+                ordenId={orden.id}
+                numero={orden.numero}
+                variant="blue"
+                label="Reimprimir orden de salida"
+              />
+              {/* Reimprimir orden de ingreso asociada (secundaria, azul) */}
+              <DescargaComprobanteButton
+                ordenId={orden.id}
+                numero={orden.numero}
+                variant="primary"
+                label="Reimprimir orden de ingreso asociada"
+              />
+              {/* Editar la salida */}
+              <Link href={`/ordenes/${orden.id}/salida`} className={btnEditar}>
+                Editar
+              </Link>
+              <EliminarOrdenButton ordenId={orden.id} numero={orden.numero} entregada />
+            </>
+          ) : (
+            <>
+              {/* Reimprimir orden de entrada (azul) */}
+              <DescargaComprobanteButton
+                ordenId={orden.id}
+                numero={orden.numero}
+                variant="primary"
+                label="Reimprimir orden de entrada"
+              />
+              {/* Editar la entrada */}
+              <Link href={`/ingresos/${orden.id}/editar`} className={btnEditar}>
+                Editar
+              </Link>
+              <EliminarOrdenButton ordenId={orden.id} numero={orden.numero} />
+            </>
           )}
         </div>
       </div>
