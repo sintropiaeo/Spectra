@@ -39,24 +39,56 @@ const s = StyleSheet.create({
     paddingVertical: 22,
   },
 
-  // Header
+  // Encabezado
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    borderBottomWidth: 1.5,
-    borderBottomColor: C.accent,
     paddingBottom: 6,
-    marginBottom: 8,
   },
-  empresaNombre: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.accent },
+  empresa: { flex: 1 },
   empresaLogo: { width: 132, height: 28, marginBottom: 3, objectFit: "contain" },
   empresaSub: { fontSize: 7, color: C.muted, marginTop: 2 },
-  remitoBox: { alignItems: "flex-end" },
-  remitoTitulo: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.accent },
-  remitoSub: { fontSize: 7, color: C.muted, marginTop: 2 },
 
-  // Sección genérica
+  // Caja "X" (comprobante no fiscal)
+  xWrap: { alignItems: "center", paddingHorizontal: 10 },
+  xBox: {
+    width: 42,
+    height: 40,
+    borderWidth: 1,
+    borderColor: C.text,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  xLetter: { fontSize: 26, fontFamily: "Helvetica-Bold", color: C.text },
+  xCod: { fontSize: 5.5, color: C.muted, marginTop: 2, letterSpacing: 0.5 },
+
+  ordenBox: { alignItems: "flex-end" },
+  ordenTitulo: { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.accent },
+  ordenSub: { fontSize: 7, color: C.muted, marginTop: 2 },
+
+  // Banda "no válido como factura"
+  noValidaBand: {
+    borderTopWidth: 1.5,
+    borderTopColor: C.accent,
+    borderBottomWidth: 0.5,
+    borderBottomColor: C.border,
+    paddingVertical: 4,
+    marginBottom: 6,
+    alignItems: "center",
+  },
+  noValidaText: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: C.text,
+    letterSpacing: 1,
+  },
+
+  // Dos columnas
+  row2: { flexDirection: "row", gap: 6, marginBottom: 6 },
+  col: { flex: 1, borderWidth: 0.5, borderColor: C.border, borderRadius: 2, overflow: "hidden" },
+
+  // Sección
   section: {
     borderWidth: 0.5,
     borderColor: C.border,
@@ -77,10 +109,6 @@ const s = StyleSheet.create({
     borderBottomColor: C.border,
   },
   sectionBody: { paddingHorizontal: 7, paddingVertical: 5 },
-
-  // Dos columnas
-  row2: { flexDirection: "row", gap: 6, marginBottom: 6 },
-  col: { flex: 1, borderWidth: 0.5, borderColor: C.border, borderRadius: 2, overflow: "hidden" },
 
   // KV
   kv: { flexDirection: "row", marginBottom: 2 },
@@ -103,11 +131,7 @@ const s = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 7,
   },
-  tableLastRow: {
-    flexDirection: "row",
-    paddingVertical: 3,
-    paddingHorizontal: 7,
-  },
+  tableLastRow: { flexDirection: "row", paddingVertical: 3, paddingHorizontal: 7 },
   thCant:   { width: 32, fontSize: 7, color: C.muted, fontFamily: "Helvetica-Bold", textAlign: "right" },
   thDetalle:{ flex: 1, fontSize: 7, color: C.muted, fontFamily: "Helvetica-Bold", paddingLeft: 8 },
   thPrecio: { width: 72, fontSize: 7, color: C.muted, fontFamily: "Helvetica-Bold", textAlign: "right" },
@@ -118,24 +142,17 @@ const s = StyleSheet.create({
   tdImporte:{ width: 72, fontSize: 8, fontFamily: "Helvetica-Bold", textAlign: "right" },
 
   // Totales
-  totalesBox: {
-    borderTopWidth: 1,
-    borderTopColor: C.border,
-    marginTop: 3,
-    paddingTop: 4,
-    paddingHorizontal: 7,
-  },
+  totalesBox: { borderTopWidth: 1, borderTopColor: C.border, marginTop: 3, paddingTop: 4, paddingHorizontal: 7 },
   totalRow: { flexDirection: "row", justifyContent: "flex-end", marginBottom: 2 },
   totalLabel: { fontSize: 7, color: C.muted, width: 130, textAlign: "right" },
   totalVal: { fontSize: 8, fontFamily: "Helvetica-Bold", width: 75, textAlign: "right" },
   totalFinalLabel: { fontSize: 8, fontFamily: "Helvetica-Bold", color: C.accent, width: 130, textAlign: "right" },
   totalFinalVal: { fontSize: 9, fontFamily: "Helvetica-Bold", color: C.accent, width: 75, textAlign: "right" },
-  cotizacionBox: {
-    marginTop: 4,
-    paddingTop: 4,
-    borderTopWidth: 0.5,
-    borderTopColor: C.border,
-  },
+  cotizacionBox: { marginTop: 4, paddingTop: 4, borderTopWidth: 0.5, borderTopColor: C.border },
+
+  // Leyendas al pie de la tabla
+  leyendas: { marginTop: 6, paddingHorizontal: 7 },
+  leyendaText: { fontSize: 7.5, color: C.text, fontFamily: "Helvetica-Bold", marginBottom: 1 },
 
   // Footer
   footer: {
@@ -146,12 +163,6 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-  },
-  noValida: {
-    fontSize: 7,
-    color: C.light,
-    fontFamily: "Helvetica-Bold",
-    letterSpacing: 0.5,
   },
   tecnicoLabel: { fontSize: 7, color: C.muted },
   tecnicoVal: { fontSize: 8, fontFamily: "Helvetica-Bold", color: C.text },
@@ -172,8 +183,8 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
   const { orden, cliente, items, config } = data;
 
   const moneda = orden.moneda ?? "USD";
-  const ivaPct = 21; // from config ideally, but not in remito-types; use hardcoded default
-  const subtotal = items.reduce((s, i) => s + (i.importe ?? 0), 0);
+  const ivaPct = 21;
+  const subtotal = items.reduce((sum, i) => sum + (i.importe ?? 0), 0);
   const ivaAmount = orden.aplica_iva ? subtotal * (ivaPct / 100) : 0;
   const total = subtotal + ivaAmount;
   const cotizacionNum = orden.cotizacion ?? 0;
@@ -182,23 +193,46 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
       ? total * cotizacionNum
       : null;
 
+  // Leyendas al pie (según campos de la orden)
+  const leyendaIva = orden.aplica_iva
+    ? "Los precios incluyen I.V.A."
+    : "Los precios no incluyen I.V.A.";
+  const leyendaMoneda =
+    moneda === "USD"
+      ? "Los precios están expresados en dólares"
+      : "Los precios están expresados en pesos";
+
   return (
     <Document
-      title={`Remito N° ${orden.numero}`}
+      title={`Orden N° ${orden.numero}`}
       author={config?.nombre_empresa ?? "SPECTRA"}
     >
       <Page size="A4" style={s.page}>
-        {/* ── Encabezado ── */}
+        {/* ── Encabezado estilo factura X ── */}
         <View style={s.header}>
-          <View>
+          <View style={s.empresa}>
             <Image src={LOGO_COSTARELLI} style={s.empresaLogo} />
             {config?.direccion ? <Text style={s.empresaSub}>{config.direccion}</Text> : null}
             {config?.cuit ? <Text style={s.empresaSub}>CUIT: {config.cuit}</Text> : null}
           </View>
-          <View style={s.remitoBox}>
-            <Text style={s.remitoTitulo}>REMITO N° {orden.numero}</Text>
-            <Text style={s.remitoSub}>Fecha de salida: {fmtDate(orden.fecha_salida)}</Text>
+
+          <View style={s.xWrap}>
+            <View style={s.xBox}>
+              <Text style={s.xLetter}>X</Text>
+            </View>
+            <Text style={s.xCod}>COMPROBANTE X</Text>
           </View>
+
+          <View style={s.ordenBox}>
+            <Text style={s.ordenTitulo}>ORDEN N° {orden.numero}</Text>
+            <Text style={s.ordenSub}>Fecha de salida: {fmtDate(orden.fecha_salida)}</Text>
+            {orden.tecnico ? <Text style={s.ordenSub}>Técnico: {orden.tecnico}</Text> : null}
+          </View>
+        </View>
+
+        {/* Banda: no válido como factura */}
+        <View style={s.noValidaBand}>
+          <Text style={s.noValidaText}>DOCUMENTO NO VÁLIDO COMO FACTURA</Text>
         </View>
 
         {/* ── Cliente + Equipo ── */}
@@ -225,11 +259,30 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
           </View>
         </View>
 
-        {/* ── Tabla de items ── */}
+        {/* ── Problema reportado + Observaciones (traídos de la entrada) ── */}
+        <View style={s.row2}>
+          <View style={s.col}>
+            <Text style={s.sectionTitle}>Problema reportado</Text>
+            <View style={[s.sectionBody, { minHeight: 28 }]}>
+              <Text style={{ fontSize: 8, color: C.text, lineHeight: 1.4 }}>
+                {orden.deficiencia || "—"}
+              </Text>
+            </View>
+          </View>
+          <View style={s.col}>
+            <Text style={s.sectionTitle}>Observaciones</Text>
+            <View style={[s.sectionBody, { minHeight: 28 }]}>
+              <Text style={{ fontSize: 8, color: C.text, lineHeight: 1.4 }}>
+                {orden.observaciones || "—"}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* ── Trabajos realizados ── */}
         <View style={s.section}>
           <Text style={s.sectionTitle}>Trabajos realizados</Text>
 
-          {/* Cabecera */}
           <View style={s.tableHeader}>
             <Text style={s.thCant}>Cant.</Text>
             <Text style={s.thDetalle}>Detalle</Text>
@@ -237,12 +290,8 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
             <Text style={s.thImporte}>Importe</Text>
           </View>
 
-          {/* Filas */}
           {items.map((item, i) => (
-            <View
-              key={i}
-              style={i === items.length - 1 ? s.tableLastRow : s.tableRow}
-            >
+            <View key={i} style={i === items.length - 1 ? s.tableLastRow : s.tableRow}>
               <Text style={s.tdCant}>{item.cantidad ?? 1}</Text>
               <Text style={s.tdDetalle}>{item.detalle ?? ""}</Text>
               <Text style={s.tdPrecio}>{fmt2(item.precio)}</Text>
@@ -282,11 +331,17 @@ export function RemitoPDF({ data }: { data: RemitoPDFData }) {
               </View>
             )}
           </View>
+
+          {/* Dos leyendas al pie de la tabla */}
+          <View style={s.leyendas}>
+            <Text style={s.leyendaText}>{leyendaIva}</Text>
+            <Text style={s.leyendaText}>{leyendaMoneda}</Text>
+          </View>
         </View>
 
-        {/* ── Pie ── */}
+        {/* ── Pie: técnico ── */}
         <View style={s.footer}>
-          <Text style={s.noValida}>DOCUMENTO NO VÁLIDO COMO FACTURA</Text>
+          <Text style={s.tecnicoLabel}>Comprobante interno de entrega y cobro.</Text>
           {orden.tecnico ? (
             <View style={{ alignItems: "flex-end" }}>
               <Text style={s.tecnicoLabel}>Técnico</Text>

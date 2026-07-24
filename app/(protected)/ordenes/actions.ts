@@ -77,7 +77,7 @@ export async function getOrdenParaRemito(ordenId: string): Promise<RemitoPDFData
     .select(`
       id, numero, fecha_salida, tecnico,
       moneda, aplica_iva, mostrar_cotizacion, cotizacion,
-      marca, modelo, numero_serie, estacion, empresa_id,
+      marca, modelo, numero_serie, estacion, deficiencia, observaciones, empresa_id,
       clientes:cliente_id (
         razon_social, direccion, localidad, provincia, telefono1
       ),
@@ -110,6 +110,8 @@ export async function getOrdenParaRemito(ordenId: string): Promise<RemitoPDFData
       modelo: data.modelo,
       numero_serie: data.numero_serie,
       estacion: data.estacion,
+      deficiencia: data.deficiencia,
+      observaciones: data.observaciones,
     },
     cliente: data.clientes as RemitoPDFData["cliente"],
     items: (data.items_trabajo as RemitoPDFData["items"]) ?? [],
