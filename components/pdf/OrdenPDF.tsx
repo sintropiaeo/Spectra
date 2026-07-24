@@ -97,7 +97,7 @@ const s = StyleSheet.create({
     fontSize: 6,
     color: "#9ca3af",
     textAlign: "right",
-    marginBottom: 5,
+    marginBottom: 2,
   },
 
   // ── Dos columnas ──
@@ -208,19 +208,32 @@ const s = StyleSheet.create({
 
   // ── Firma ──
   firmaWrap: {
-    marginTop: 30,
+    marginTop: 36,
+  },
+  firmaBloque: {
+    alignItems: "flex-end",
   },
   firmaLine: {
     borderTopWidth: 0.75,
     borderTopColor: C.text,
     width: 240,
   },
-  firmaLegend: {
+  firmaCaption: {
+    width: 240,
+    textAlign: "center",
     fontSize: 7,
     color: C.muted,
+    letterSpacing: 0.5,
     marginTop: 3,
-    lineHeight: 1.35,
-    maxWidth: 380,
+    textTransform: "uppercase",
+  },
+  firmaLegend: {
+    textAlign: "center",
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9,
+    color: C.text,
+    lineHeight: 1.4,
+    marginTop: 14,
   },
 });
 
@@ -312,9 +325,7 @@ function CopiaSuperior({ data }: { data: OrdenPDFData }) {
 
   return (
     <View>
-      <Text style={s.copiaLabel}>COPIA CLIENTE</Text>
-
-      {/* Encabezado con logo */}
+      {/* Encabezado con logo — logo y "COPIA CLIENTE" alineados arriba */}
       <View style={s.header}>
         <View style={s.empresa}>
           <Image src={LOGO_COSTARELLI} style={s.logo} />
@@ -326,6 +337,7 @@ function CopiaSuperior({ data }: { data: OrdenPDFData }) {
           ) : null}
         </View>
         <View style={s.ordenBox}>
+          <Text style={s.copiaLabel}>COPIA CLIENTE</Text>
           <Text style={s.ordenNumero}>ORDEN N° {orden.numero}</Text>
           <Text style={s.ordenSub}>
             Fecha de ingreso: {fmtDate(orden.fecha_ingreso)}
@@ -387,7 +399,10 @@ function CopiaInferior({ data }: { data: OrdenPDFData }) {
 
       {/* Firma del cliente + leyenda */}
       <View style={s.firmaWrap}>
-        <View style={s.firmaLine} />
+        <View style={s.firmaBloque}>
+          <View style={s.firmaLine} />
+          <Text style={s.firmaCaption}>Firma del cliente</Text>
+        </View>
         <Text style={s.firmaLegend}>
           Firmo conforme la recepción del comprobante adjunto que deberá ser
           presentado indefectiblemente para el retiro del equipo
