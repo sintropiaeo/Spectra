@@ -7,6 +7,9 @@ import EliminarOrdenButton from "@/components/ordenes/EliminarOrdenButton";
 const btnEditar =
   "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-amber-400 text-amber-950 hover:bg-amber-500 transition-colors";
 
+const btnRegistrarSalida =
+  "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors";
+
 type Datos = NonNullable<Awaited<ReturnType<typeof getOrdenCompleto>>>;
 
 type Props = {
@@ -125,6 +128,13 @@ export default function OrdenDetalle({
             </>
           ) : (
             <>
+              {/* Registrar la salida de este equipo (form de salida directo) */}
+              <Link href={`/ordenes/${orden.id}/salida`} className={btnRegistrarSalida}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Registrar salida de equipo
+              </Link>
               {/* Reimprimir orden de entrada (azul) */}
               <DescargaComprobanteButton
                 ordenId={orden.id}
