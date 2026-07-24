@@ -187,10 +187,10 @@ export default function SalidaForm({
         </div>
         <div className="flex gap-3 justify-center pt-1">
           <Link
-            href="/ordenes"
+            href="/equipos"
             className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
           >
-            Volver a salidas
+            Volver a Equipos
           </Link>
         </div>
       </div>

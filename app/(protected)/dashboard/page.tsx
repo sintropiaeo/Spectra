@@ -57,7 +57,7 @@ export default async function DashboardPage() {
           label="En el taller ahora"
           value={data.enTaller}
           valueClass="text-indigo-600"
-          href="/ordenes"
+          href="/equipos"
         />
         <StatCard
           label="Sin retirar +60 días"

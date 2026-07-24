@@ -61,8 +61,8 @@ export default async function OrdenDetallePage({ params }: Props) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-gray-400 mb-1">
-            <Link href="/ordenes" className="hover:text-gray-600 transition-colors">
-              Órdenes
+            <Link href="/equipos" className="hover:text-gray-600 transition-colors">
+              Equipos
             </Link>
             <span>/</span>
             <span className="text-gray-600">N° {orden.numero}</span>

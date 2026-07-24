@@ -35,8 +35,8 @@ export default async function SalidaPage({ params }: Props) {
     <div className="space-y-6 max-w-4xl">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400">
-        <Link href="/ordenes" className="hover:text-gray-600 transition-colors">
-          Salida de equipos
+        <Link href="/equipos" className="hover:text-gray-600 transition-colors">
+          Equipos
         </Link>
         <span>/</span>
         <span className="text-gray-600 font-medium">N° {orden.numero}</span>

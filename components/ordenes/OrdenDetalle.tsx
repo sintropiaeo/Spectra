@@ -72,14 +72,16 @@ export default function OrdenDetalle({
 
   return (
     <div className="space-y-5 max-w-4xl">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-400">
-        <Link href={basePath} className="hover:text-gray-600 transition-colors">
-          {basePathLabel}
-        </Link>
-        <span>/</span>
-        <span className="text-gray-600 font-medium">N° {orden.numero}</span>
-      </div>
+      {/* Volver */}
+      <Link
+        href={basePath}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Volver a {basePathLabel}
+      </Link>
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">

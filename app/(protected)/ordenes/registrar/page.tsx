@@ -14,8 +14,8 @@ export default async function RegistrarSalidaPage() {
             Elegí la orden pendiente cuyo equipo vas a entregar.
           </p>
         </div>
-        <Link href="/ordenes" className="text-sm text-gray-500 hover:text-gray-800">
-          ← Volver al listado
+        <Link href="/equipos" className="text-sm text-gray-500 hover:text-gray-800">
+          ← Volver a Equipos
         </Link>
       </div>
       <BuscadorOrdenes ordenes={ordenes as Parameters<typeof BuscadorOrdenes>[0]["ordenes"]} />

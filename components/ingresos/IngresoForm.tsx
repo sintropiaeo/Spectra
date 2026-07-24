@@ -82,10 +82,10 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today, 
               Nueva entrada
             </Link>
             <Link
-              href="/ingresos"
+              href="/equipos"
               className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
-              Ver entradas
+              Ver equipos
             </Link>
           </div>
         </div>
@@ -102,8 +102,8 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today, 
         <h1 className="text-2xl font-bold text-gray-900">
           {isEdit ? `Editar entrada N° ${orden!.numero}` : "Registrar entrada de equipo"}
         </h1>
-        <Link href="/ingresos" className="text-sm text-gray-500 hover:text-gray-800">
-          ← Volver al listado
+        <Link href="/equipos" className="text-sm text-gray-500 hover:text-gray-800">
+          ← Volver a Equipos
         </Link>
       </div>
 
@@ -258,7 +258,7 @@ export default function IngresoForm({ clientes, tecnicos, nombreUsuario, today, 
             {isPending ? "Guardando..." : isEdit ? "Guardar cambios" : "Registrar entrada"}
           </button>
           <Link
-            href="/ingresos"
+            href="/equipos"
             className="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
           >
             Cancelar
